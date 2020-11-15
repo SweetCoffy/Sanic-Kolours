@@ -120,6 +120,7 @@ public class Player : MonoBehaviour
             }
             if (Input.GetButtonDown("Boost")) {
                 Camera.main.fieldOfView = 25;
+                boost = Mathf.Clamp(boost - 12.5f, 0, maxBoost);
             }
             if (currWisp != null && Input.GetButtonDown("Wisp Power")) {
                 if (!currWisp.beingUsed) {
