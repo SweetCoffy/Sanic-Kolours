@@ -2558,7 +2558,7 @@ MonoBehaviour:
   airDashForce: 12
   multiplier: 7.9
   maxSpeed: 70
-  maxTimeSinceLastRaycast: 0.3
+  maxTimeSinceLastRaycast: 0.15
   distance: 0.8
   radius: 0.53
   groundMask:
