@@ -6,7 +6,7 @@ public class WispBox : MonoBehaviour {
     public WispThings wisp = WispThings.Hover;
     Wisp w;
     void Start() {
-        Debug.Log(wisp);
+        
         if (wisp == WispThings.Hover) w = Wisps.main.hover;
         if (wisp == WispThings.Rocket) w = Wisps.main.rocket;
         if (wisp == WispThings.Cube) w = Wisps.main.cube;

@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3921884925393900050}
   - component: {fileID: 5320819123971185669}
   - component: {fileID: 4212480193131030964}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Cube
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -92,9 +92,8 @@ GameObject:
   - component: {fileID: 632347715158722194}
   - component: {fileID: 4123982462609596218}
   - component: {fileID: 1428801627631845180}
-  - component: {fileID: 9081432147059821145}
   - component: {fileID: 3047651611131704212}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Quad (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -164,20 +163,6 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!64 &9081432147059821145
-MeshCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3410290525379532934}
-  m_Material: {fileID: 0}
-  m_IsTrigger: 0
-  m_Enabled: 1
-  serializedVersion: 4
-  m_Convex: 0
-  m_CookingOptions: 30
-  m_Mesh: {fileID: 10210, guid: 0000000000000000e000000000000000, type: 0}
 --- !u!114 &3047651611131704212
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -204,7 +189,7 @@ GameObject:
   - component: {fileID: 2862627514725012495}
   - component: {fileID: 1358040193646500955}
   - component: {fileID: 8923805645930880819}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: BlueRing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -253,6 +238,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   enabledRenderer: {fileID: 4212480193131030964}
+  invert: 0
   col: {fileID: 1358040193646500955}
 --- !u!65 &1358040193646500955
 BoxCollider:

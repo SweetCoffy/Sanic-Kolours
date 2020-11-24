@@ -1,9 +1,15 @@
 using UnityEngine;
 public class BlueRing : MonoBehaviour {
     public Renderer enabledRenderer;
+    public bool invert = false;
     public Collider col;
     void Update() {
-        enabledRenderer.enabled = Game.cubeEnabled;
-        col.enabled = Game.cubeEnabled;
+        if (!invert) {
+            enabledRenderer.enabled = Game.cubeEnabled;
+            col.enabled = Game.cubeEnabled;
+        } else {
+            enabledRenderer.enabled = !Game.cubeEnabled;
+            col.enabled = !Game.cubeEnabled;
+        }
     }
 }

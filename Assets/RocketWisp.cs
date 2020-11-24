@@ -7,7 +7,7 @@ public class RocketWisp : Wisp {
         player.inputEnabled = false;
     }
     public override void Update() {
-        timeLeft -= timeLeft * (1 - (timeLeft / duration)) * 0.1f;
+        consumeRate = 1 + (timeLeft * (1 - (timeLeft / duration)));
         base.Update();
         float targetVelocity = (1 - (timeLeft / duration)) * maxSpeed;
         player.rb.velocity = player.transform.up * targetVelocity;
