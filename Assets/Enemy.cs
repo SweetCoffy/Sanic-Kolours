@@ -10,10 +10,11 @@ public class Enemy : MonoBehaviour {
         if (p) {
             Debug.Log("h");
             if (p.DestroyEnemies) {
-                p.rb.velocity = Vector3.up * p.jumpForce;
+                if (p.BounceOffEnemies) p.rb.velocity = Vector3.up * p.jumpForce;
                 p.stomp = false;
                 p.doingHomingAttack = false;
-                TakeDamage();
+                SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
+                TakeDamage(p);
             }
         }
     }
@@ -22,10 +23,11 @@ public class Enemy : MonoBehaviour {
         if (p) {
             Debug.Log("h");
             if (p.DestroyEnemies) {
-                p.rb.velocity = Vector3.up * p.jumpForce;
+                if (p.BounceOffEnemies) p.rb.velocity = Vector3.up * p.jumpForce;
                 p.stomp = false;
                 p.doingHomingAttack = false;
-                TakeDamage();
+                SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
+                TakeDamage(p);
             }
         }
     }
@@ -34,7 +36,7 @@ public class Enemy : MonoBehaviour {
         GetComponent<Collider>().enabled = true;
         GetComponent<Renderer>().enabled = true;
     }
-    protected virtual void TakeDamage(float damage = 1) {
+    protected virtual void TakeDamage(Player p, float damage = 1) {
         health -= damage;
         Debug.Log("oof");
         if (health <= 0) {
@@ -42,8 +44,10 @@ public class Enemy : MonoBehaviour {
             if (respawn) {
                 GetComponent<Collider>().enabled = false;
                 GetComponent<Renderer>().enabled = false;
+                SendMessage("OnDie", p, SendMessageOptions.DontRequireReceiver);
                 StartCoroutine(Respawn());
             } else {
+                SendMessage("OnDie", p, SendMessageOptions.DontRequireReceiver);
                 Destroy(gameObject);
             }
         }

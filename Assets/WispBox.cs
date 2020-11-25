@@ -12,6 +12,15 @@ public class WispBox : MonoBehaviour {
         if (wisp == WispThings.Cube) w = Wisps.main.cube;
         if (wisp == WispThings.Slowmo) w = Wisps.main.slowmo;
     }
+    void OnDamage(Player p) {
+        if (wisp == WispThings.Boost) {
+            p.boost += 25;
+            if (p.boost > p.maxBoost) p.boost = p.maxBoost;
+            return;
+        }
+        p.ChangeWisp(w);  
+    }
+    /*
     void OnTriggerEnter(Collider col) {
         Player p = col.GetComponent<Player>();
         if (p) {
@@ -23,4 +32,5 @@ public class WispBox : MonoBehaviour {
             p.ChangeWisp(w);
         }
     }
+    */
 }

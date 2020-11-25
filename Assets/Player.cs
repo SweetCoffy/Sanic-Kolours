@@ -99,9 +99,14 @@ public class Player : MonoBehaviour
         public float homingAttackForce = 50;
         private float fallTime = 0;
         public bool doingHomingAttack = false;
-        public bool DestroyEnemies {
+        public bool BounceOffEnemies {
             get {
                 return doingHomingAttack || stomp;
+            }
+        }
+        public bool DestroyEnemies {
+            get {
+                return doingHomingAttack || stomp || isBoosting;
             }
         }
         public float MaxSpeed {
@@ -202,14 +207,14 @@ public class Player : MonoBehaviour
         if (isGrounded && stomp) {
             stomp = false;
             //inputEnabled = true;
-            CameraThing.main.Shake(0.2f, (0.2f / 50) * (stompVelocity + fallTime));
-            rb.velocity = (transform.up * stompVelocity * (1 + fallTime) / 1.75f) + (rb.velocity / 2);
+            CameraThing.main.Shake(0.2f, (0.2f / 50) * (stompVelocity) + (fallTime / 10));
+            //rb.velocity = (transform.up * stompVelocity * (1 + fallTime) / 1.75f) + (rb.velocity / 2);
             fallTime = 0;
         }
     }
     void Update()
     {
-        target.gameObject.SetActive(homingAttackTarget && !isGrounded);
+        target.gameObject.SetActive(homingAttackTarget && !isGrounded && !doingHomingAttack);
         if (homingAttackTarget && !isGrounded) {
             target.position = homingAttackTarget.position;
         }
@@ -314,7 +319,7 @@ public class Player : MonoBehaviour
             jump = false;
         }
         if (trail) {
-            trail.emitting = RealCurrSpeed > minSpeed;
+            trail.emitting = isBoosting || doingHomingAttack || stomp || didAirDash;
         }
         Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, Mathf.Clamp(baseFov + (CurrSpeed * fovIntensity), 20, fovLimit), fovSpeed * Time.deltaTime);
         if (glowThing.color.a > 1) glowThing.color = new Color(glowThing.color.r, glowThing.color.g, glowThing.color.b, 1);
