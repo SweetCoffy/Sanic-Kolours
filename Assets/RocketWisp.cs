@@ -5,6 +5,7 @@ public class RocketWisp : Wisp {
     public override void Start() {
         base.Start();
         player.inputEnabled = false;
+        player.destroyEnemies = true;
     }
     public override void Update() {
         consumeRate = 1 + (timeLeft * (1 - (timeLeft / duration)));
@@ -16,5 +17,6 @@ public class RocketWisp : Wisp {
         base.End();
         player.inputEnabled = true;
         player.rb.velocity = Vector3.zero;
+        player.destroyEnemies = false;
     }
 }

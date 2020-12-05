@@ -6,7 +6,6 @@ public class WispBox : MonoBehaviour {
     public WispThings wisp = WispThings.Hover;
     Wisp w;
     void Start() {
-        
         if (wisp == WispThings.Hover) w = Wisps.main.hover;
         if (wisp == WispThings.Rocket) w = Wisps.main.rocket;
         if (wisp == WispThings.Cube) w = Wisps.main.cube;
@@ -14,8 +13,9 @@ public class WispBox : MonoBehaviour {
     }
     void OnDamage(Player p) {
         if (wisp == WispThings.Boost) {
+            if (p.boost >= p.maxBoost) return;
             p.boost += 25;
-            if (p.boost > p.maxBoost) p.boost = p.maxBoost;
+            if (p.boost >= p.maxBoost) p.boost = p.maxBoost;
             return;
         }
         p.ChangeWisp(w);  

@@ -32,9 +32,12 @@ public class Player : MonoBehaviour
         public Image outlineThing;
         public Image wispIcon;
         public RectTransform h;
+        private Image hImage;
         public Image speedBar;
         public float barPercent = 1;
         public Image wispBar;
+        public Image boostGauge2;
+        public Image boostGauge3;
         public Sprite wispBarIdle;
         public Sprite wispBarActive;
         public RectTransform wispBarRect;
@@ -78,18 +81,32 @@ public class Player : MonoBehaviour
         public Renderer boostEffect;
         public Transform boostEffectTransform;
         public Transform fakeShadow;
+        public ParticleSystem runningParticles;
         public TrailRenderer trail;
         public float baseFov = 70;
         public float fovLimit = 150;
     [Header("Other")]
+        public bool wispsEnabled = true;
         public Transform graphics;
         public bool inputEnabled = true;
         public float homingAttackRadius = 10;
         Vector2 originalPos;
         Vector3 facing = Vector3.forward;
+        public bool destroyEnemies;
         public Transform target;
         bool didAirDash = false;
-        public Transform homingAttackTarget;
+        private float scaleMultiplier = 0;
+        public Transform homingAttackTarget {
+            get {
+                return _target;
+            }
+            set {
+                if (_target == value) return;
+                scaleMultiplier = 0.5f;
+                _target = value;
+            }
+        }
+        private Transform _target;
         public Wisp currWisp; 
         public LayerMask homingAttackMask;
         public float twoDModeZ = 0;
@@ -97,16 +114,17 @@ public class Player : MonoBehaviour
         private int _rings = 0;
         public bool stomp = false;
         public float homingAttackForce = 50;
+        private float fillAmount = 0;
         private float fallTime = 0;
         public bool doingHomingAttack = false;
         public bool BounceOffEnemies {
             get {
-                return doingHomingAttack || stomp;
+                return doingHomingAttack;
             }
         }
         public bool DestroyEnemies {
             get {
-                return doingHomingAttack || stomp || isBoosting;
+                return doingHomingAttack || stomp || isBoosting || destroyEnemies;
             }
         }
         public float MaxSpeed {
@@ -161,9 +179,17 @@ public class Player : MonoBehaviour
         currWisp = null;
         originalPos = h.anchoredPosition;
         barColor = defaultBarColor;
+        hImage = h.GetComponent<Image>();
     }
     public void ChangeWisp(Wisp wisp) {
-        if (this.currWisp != null) if (this.currWisp.timeLeft > 0) return;
+
+        if (this.currWisp != null) {
+            if (wisp.barColor.Equals(this.currWisp.barColor) && this.currWisp.beingUsed && this.currWisp.timeLeft > 0) {
+                currWisp.timeLeft = currWisp.duration;
+                return;
+            }
+            if (this.currWisp.timeLeft > 0) return;
+        }
         
         this.currWisp = wisp.Clone();
     }
@@ -183,21 +209,18 @@ public class Player : MonoBehaviour
         bool didHit = Physics.Raycast(transform.position, -transform.up, out hit, distance, groundMask);
         rb.AddForce(movement.x * Speed * Time.deltaTime * transform.right);
         rb.AddForce(movement.y * Speed * Time.deltaTime * transform.forward);
-        //
-        //
         if (didHit) {
-            fakeShadow.gameObject.SetActive(true);
             Debug.DrawRay(transform.position, hit.point - transform.position, Color.green);
-            //isGrounded = true;
-            Quaternion h = Quaternion.FromToRotation(Vector3.up, hit.normal.normalized);
-            rb.rotation = Quaternion.Lerp(rb.rotation, h, rotationSpeed * Time.deltaTime);
-            fakeShadow.position = hit.point;
-            fakeShadow.rotation = h;
+            Quaternion h = Quaternion.FromToRotation(Vector3.up, hit.normal.normalized).normalized;
+            Vector3 requiredSpeed = new Vector3(h.x, h.y, h.z) * (minSpeed / 2);
+            if (CurrSpeed > requiredSpeed.magnitude) {
+                rb.rotation = Quaternion.Lerp(rb.rotation, h, rotationSpeed * Time.deltaTime);
+            } else {
+                rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
+            }
             secondsSinceLastRaycast = 0;
         } else if (secondsSinceLastRaycast > maxTimeSinceLastRaycast){
             Debug.DrawRay(transform.position, -transform.up * distance, Color.red);
-            //isGrounded = false;
-            fakeShadow.gameObject.SetActive(false);
             rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
         }
         var target = rb.velocity;
@@ -207,6 +230,7 @@ public class Player : MonoBehaviour
         if (isGrounded && stomp) {
             stomp = false;
             //inputEnabled = true;
+            rb.velocity = Vector3.zero;
             CameraThing.main.Shake(0.2f, (0.2f / 50) * (stompVelocity) + (fallTime / 10));
             //rb.velocity = (transform.up * stompVelocity * (1 + fallTime) / 1.75f) + (rb.velocity / 2);
             fallTime = 0;
@@ -214,18 +238,28 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
-        target.gameObject.SetActive(homingAttackTarget && !isGrounded && !doingHomingAttack);
-        if (homingAttackTarget && !isGrounded) {
+        target.localScale = Vector3.one * (1 + scaleMultiplier);
+        if (scaleMultiplier > 0) {
+            scaleMultiplier -= Time.deltaTime * 5;
+        }
+        iconHolder.gameObject.SetActive(wispsEnabled);
+        target.gameObject.SetActive(homingAttackTarget);
+        if (homingAttackTarget) {
             target.position = homingAttackTarget.position;
         }
+        if (!homingAttackTarget) doingHomingAttack = false;
         UpdateHomingAttackTarget();
         isBoosting = false;
         boostEffectTransform.LookAt(transform.position + rb.velocity);
         wispBar.color = Color.Lerp(wispBar.color, barColor, 10 * Time.deltaTime);
         float barTarget = barPercent;
+        float barValue = fillAmount;
+        if (float.IsNaN(barValue)) barValue = 0;
         if (float.IsNaN(barTarget)) barTarget = 0;
-        wispBar.fillAmount = Mathf.Lerp(wispBar.fillAmount, barTarget, 10 * Time.deltaTime);
-        speedBar.fillAmount = CurrSpeed / maxSpeed;
+        fillAmount = Mathf.Lerp(barValue, barTarget, 6 * Time.deltaTime);
+        wispBar.fillAmount = fillAmount;
+        boostGauge2.fillAmount = fillAmount - 1;
+        boostGauge3.fillAmount = fillAmount - 2;
         boostThing.localPosition = (Vector3)new Vector2(wispBar.fillAmount * wispBarRect.sizeDelta.x, 0);
         //if (TwoDMode) rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
         //else rb.constraints = RigidbodyConstraints.FreezeRotation;
@@ -233,10 +267,9 @@ public class Player : MonoBehaviour
         facingRelative = (Vector3.right * lastMovement.x) + (Vector3.forward * lastMovement.y);
         Debug.DrawRay(transform.position, facing * 7);
         Debug.DrawRay(transform.position, facingRelative * 7, Color.gray);
-        //
         if (facingRelative != -Vector3.forward) graphics.localRotation = Quaternion.AngleAxis(Vector3.Angle(Vector3.forward, facingRelative), Vector3.Cross(Vector3.forward, facingRelative));
         else graphics.localRotation = Quaternion.Euler(0, -180, 0);
-        h.gameObject.SetActive(boost > 0 && boostEnabled || (currWisp != null && currWisp.timeLeft > 0));
+        //h.gameObject.SetActive(boostEnabled || (currWisp != null && currWisp.timeLeft > 0));
         glowThing.fillAmount = wispBar.fillAmount;
         glowThing.color = new Color(wispBar.color.r, wispBar.color.g, wispBar.color.b, glowThing.color.a);
         if (isGrounded) didAirDash = false;
@@ -247,13 +280,16 @@ public class Player : MonoBehaviour
                 //wispIcon.color = new Color(0.9f, 0.9f, 0.9f, 0.9f);
                 barPercent = boost / maxBoost;
                 iconHolderImage.sprite = wispBarActive;
+                iconHolderImage.color = Color.white;
             }
             if (currWisp.beingUsed && currWisp.timeLeft <= 0) {
                 barPercent = boost / maxBoost;
-                 iconHolderImage.sprite = wispBarIdle;
+                iconHolderImage.sprite = wispBarIdle;
+                iconHolderImage.color = Color.white * 0.5f + Color.black;
             }
         } else {
             iconHolderImage.sprite = wispBarIdle;
+            iconHolderImage.color = Color.white * 0.5f + Color.black;
         }
         if (inputEnabled) {
             if (Input.GetButtonDown("Stomp") && !isGrounded && !stomp) {
@@ -264,7 +300,7 @@ public class Player : MonoBehaviour
             movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
             if (movement.magnitude > 0.1f) lastMovement = movement.normalized;
             jump = Input.GetButtonDown("Jump");
-            if (!homingAttackTarget) doingHomingAttack = false;
+            //if (!homingAttackTarget) doingHomingAttack = false;
             
             if (!isGrounded && jump) {
                 
@@ -275,13 +311,16 @@ public class Player : MonoBehaviour
                     Vector3 veloc = dir * homingAttackForce;
                     rb.velocity = veloc;
                 } else if (!didAirDash) {
+                    Vector3 scaled = rb.velocity;
+                    scaled.Scale(transform.right + transform.forward);
+                    rb.velocity = scaled;
                     rb.AddForce(new Vector3(lastMovement.x, 0, lastMovement.y) * airDashForce, ForceMode.Impulse);
                     didAirDash = true;
                 }    
             } 
             if (isGrounded) doingHomingAttack = false;
             
-            if (Input.GetButton("Boost")) {
+            if (Input.GetButton("Boost") && boostEnabled) {
                 if (lastMovement.magnitude != 0 && boost > 0) {
                     Vector3 hh = Vector3.zero;
                     isBoosting = true;
@@ -291,19 +330,23 @@ public class Player : MonoBehaviour
                     rb.AddForce(((transform.right * lastMovement.x * boostSpeed) + (transform.forward * lastMovement.y * boostSpeed)) - scaledVelocity, ForceMode.Acceleration);
                     boostThing.sizeDelta = new Vector2(3, 25);
                     glowThing.color += new Color(0, 0, 0, 1);
-                    h.anchoredPosition = originalPos + (new Vector2(Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity), Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity)) / 4);
-                    boost -= Time.deltaTime * boostConsumeRate;
+                    h.anchoredPosition = originalPos + (new Vector2(Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity), Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity)) / 2);
+                    if (boost > maxBoost) boost -= Time.deltaTime * boostConsumeRate * 2;
+                    else boost -= Time.deltaTime * boostConsumeRate;
+                    
                 } else {
                     h.anchoredPosition = originalPos;
                 }
             } else {
                 h.anchoredPosition = originalPos;
             }
-            if (Input.GetButtonDown("Boost")) {
-                Camera.main.fieldOfView = 25;
-                boost = Mathf.Clamp(boost - 12.5f, 0, maxBoost);
+            if (Input.GetButtonDown("Boost") && boostEnabled) {
+                if (boost > 0) {
+                    boost = Mathf.Clamp(boost - 12.5f, 0, maxBoost * 3);
+                    CameraThing.main.Shake(0.5f, 1f);
+                }
             }
-            if (currWisp != null && Input.GetButtonDown("Wisp Power")) {
+            if (currWisp != null && Input.GetButtonDown("Wisp Power") && wispsEnabled) {
                 if (!currWisp.beingUsed) {
                     currWisp.player = this;
                     currWisp.Start();
@@ -321,6 +364,15 @@ public class Player : MonoBehaviour
         if (trail) {
             trail.emitting = isBoosting || doingHomingAttack || stomp || didAirDash;
         }
+        if (runningParticles) {
+            var e = runningParticles.emission;
+            e.enabled = isGrounded && (isBoosting || CurrSpeed > minSpeed);
+        }
+        if ((boost > 0 && boostEnabled) || (currWisp != null && currWisp.timeLeft > 0)) {
+            hImage.color = Color.white;
+        } else {
+            hImage.color = Color.white * 0.5f + Color.black;
+        }
         Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, Mathf.Clamp(baseFov + (CurrSpeed * fovIntensity), 20, fovLimit), fovSpeed * Time.deltaTime);
         if (glowThing.color.a > 1) glowThing.color = new Color(glowThing.color.r, glowThing.color.g, glowThing.color.b, 1);
         outlineThing.color -= new Color(0, 0, 0, 2 * Time.deltaTime);
@@ -329,6 +381,7 @@ public class Player : MonoBehaviour
         if (ringThing) ringThing.material.SetColor("_Color", new Color(t, t, t, 0));
         if (t > 0) t -= Time.deltaTime * 3;
         boostEffect.gameObject.SetActive(isBoosting);
+        if (boost > maxBoost) boost = maxBoost;
     } 
     void OnDrawGizmos() {
         Gizmos.DrawWireSphere(transform.position, homingAttackRadius);

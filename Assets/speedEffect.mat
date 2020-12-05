@@ -9,7 +9,7 @@ Material:
   m_PrefabAsset: {fileID: 0}
   m_Name: speedEffect
   m_Shader: {fileID: 211, guid: 0000000000000000f000000000000000, type: 0}
-  m_ShaderKeywords: _ALPHABLEND_ON _COLOROVERLAY_ON _FADING_ON _GLOSSYREFLECTIONS_OFF
+  m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _COLOROVERLAY_ON _EMISSION _FADING_ON _GLOSSYREFLECTIONS_OFF
     _SPECULARHIGHLIGHTS_OFF
   m_LightmapFlags: 0
   m_EnableInstancingVariants: 0
@@ -73,14 +73,14 @@ Material:
     - _DistortionStrength: -0.3
     - _DistortionStrengthScaled: -0.030000001
     - _DstBlend: 10
-    - _EmissionEnabled: 0
+    - _EmissionEnabled: 1
     - _FlipbookMode: 0
     - _GlossMapScale: 1
     - _Glossiness: 0
     - _GlossyReflections: 0
     - _LightingEnabled: 0
     - _Metallic: 0
-    - _Mode: 2
+    - _Mode: 3
     - _OcclusionStrength: 1
     - _Parallax: 0.02
     - _SmoothnessTextureChannel: 0
@@ -88,13 +88,13 @@ Material:
     - _SoftParticlesFarFadeDistance: 1
     - _SoftParticlesNearFadeDistance: 0
     - _SpecularHighlights: 0
-    - _SrcBlend: 5
+    - _SrcBlend: 1
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
     - _CameraFadeParams: {r: 0.94, g: 0.9433962, b: 0, a: 0}
-    - _Color: {r: 0, g: 0.24652767, b: 1, a: 0.2901961}
+    - _Color: {r: 0, g: 775.02747, b: 1024, a: 1}
     - _ColorAddSubDiff: {r: -1, g: 0, b: 0, a: 0}
-    - _EmissionColor: {r: 0, g: 16.062746, b: 766.9961, a: 1}
+    - _EmissionColor: {r: 0, g: 718.92426, b: 766.9961, a: 1}
     - _SoftParticleFadeParams: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
