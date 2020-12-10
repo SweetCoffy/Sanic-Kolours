@@ -7,7 +7,7 @@
 |-----|------|-----
 | Jump / Air Dash | Spacebar | A/B
 | Stomp | Left Shift | RB
-| Rotate Camera | Arrow Keys | Right Joystick
+| Rotate Camera | Arrow Keys (broken) | Right Joystick
 | Move | WASD | Left Joystick
 | Boost | V | X
 | Color Power | C | Y
