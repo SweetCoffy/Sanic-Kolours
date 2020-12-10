@@ -111,6 +111,7 @@ public class Player : MonoBehaviour
         public LayerMask homingAttackMask;
         public float twoDModeZ = 0;
         public bool TwoDMode = false;
+        public Transform camHolder;
         private int _rings = 0;
         public bool stomp = false;
         public float homingAttackForce = 50;
@@ -207,8 +208,8 @@ public class Player : MonoBehaviour
         Collider[] hhhh = Physics.OverlapSphere(floorDetection.position, radius, groundMask);
         isGrounded = hhhh.Length > 0;
         bool didHit = Physics.Raycast(transform.position, -transform.up, out hit, distance, groundMask);
-        rb.AddForce(movement.x * Speed * Time.deltaTime * transform.right);
-        rb.AddForce(movement.y * Speed * Time.deltaTime * transform.forward);
+        rb.AddForce(camHolder.TransformDirection(movement.x * Speed * Time.deltaTime * transform.right));
+        rb.AddForce(camHolder.TransformDirection(movement.y * Speed * Time.deltaTime * transform.forward));
         if (didHit) {
             Debug.DrawRay(transform.position, hit.point - transform.position, Color.green);
             Quaternion h = Quaternion.FromToRotation(Vector3.up, hit.normal.normalized).normalized;
@@ -263,8 +264,8 @@ public class Player : MonoBehaviour
         boostThing.localPosition = (Vector3)new Vector2(wispBar.fillAmount * wispBarRect.sizeDelta.x, 0);
         //if (TwoDMode) rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
         //else rb.constraints = RigidbodyConstraints.FreezeRotation;
-        facing = ((transform.right * lastMovement.x) + (transform.forward * lastMovement.y)).normalized;
-        facingRelative = (Vector3.right * lastMovement.x) + (Vector3.forward * lastMovement.y);
+        facing = camHolder.TransformDirection(((transform.right * lastMovement.x) + (transform.forward * lastMovement.y)).normalized);
+        facingRelative = camHolder.TransformDirection((Vector3.right * lastMovement.x) + (Vector3.forward * lastMovement.y));
         Debug.DrawRay(transform.position, facing * 7);
         Debug.DrawRay(transform.position, facingRelative * 7, Color.gray);
         if (facingRelative != -Vector3.forward) graphics.localRotation = Quaternion.AngleAxis(Vector3.Angle(Vector3.forward, facingRelative), Vector3.Cross(Vector3.forward, facingRelative));
@@ -314,7 +315,7 @@ public class Player : MonoBehaviour
                     Vector3 scaled = rb.velocity;
                     scaled.Scale(transform.right + transform.forward);
                     rb.velocity = scaled;
-                    rb.AddForce(new Vector3(lastMovement.x, 0, lastMovement.y) * airDashForce, ForceMode.Impulse);
+                    rb.AddForce(camHolder.TransformDirection(new Vector3(lastMovement.x, 0, lastMovement.y) * airDashForce), ForceMode.Impulse);
                     didAirDash = true;
                 }    
             } 
@@ -327,7 +328,8 @@ public class Player : MonoBehaviour
                     outlineThing.color = Color.white;
                     Vector3 scaledVelocity = rb.velocity;
                     scaledVelocity.Scale(transform.right + transform.forward);
-                    rb.AddForce(((transform.right * lastMovement.x * boostSpeed) + (transform.forward * lastMovement.y * boostSpeed)) - scaledVelocity, ForceMode.Acceleration);
+                    rb.AddForce(camHolder.TransformDirection(lastMovement.x * boostSpeed * Time.deltaTime * transform.right), ForceMode.Acceleration);
+                    rb.AddForce(camHolder.TransformDirection(lastMovement.y * boostSpeed * Time.deltaTime * transform.forward), ForceMode.Acceleration);
                     boostThing.sizeDelta = new Vector2(3, 25);
                     glowThing.color += new Color(0, 0, 0, 1);
                     h.anchoredPosition = originalPos + (new Vector2(Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity), Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity)) / 2);

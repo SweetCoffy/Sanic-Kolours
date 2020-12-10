@@ -12,15 +12,23 @@ public class CameraThing : MonoBehaviour
     float originalShakeDuration = 0;
     float shakeIntensity = 0;
     Vector3 targetPos;
+    public float rSpeed = 180;
+    float yRotation = 0;
+    public float minX = -60;
+    public float maxX = 60;
     [Range(0, 1)]
     public float rotationMultiplier = 1;
     Vector3 currVeloc = Vector3.zero;
     public Vector3 intensity = Vector3.one;
+    public Transform xAxis;
     void Start() {
         main = this;
+        yRotation = transform.localEulerAngles.y;
     }
     void FixedUpdate()
     {
+        yRotation += Input.GetAxis("Camera Horizontal") * Time.deltaTime * rSpeed;
+        Vector3 g = new Vector3(0, yRotation, 0);
         currVeloc = Vector3.Lerp(currVeloc, target.velocity, speed * Time.deltaTime);
         Vector3 h = currVeloc;
         h.Scale(intensity);
@@ -34,11 +42,11 @@ public class CameraThing : MonoBehaviour
             originalShakeDuration = 0;
             shakeIntensity = 0;
         }
-        transform.rotation = Quaternion.Lerp(transform.rotation, 
-            Quaternion.Lerp(Quaternion.identity, Quaternion.Euler((target.transform.localEulerAngles.x + rotationOffset.x), 
+        Quaternion r = Quaternion.Euler(0, yRotation, 0);
+        /*xAxis.localRotation = Quaternion.Lerp(xAxis.localRotation, Quaternion.Lerp(Quaternion.identity, Quaternion.Euler((target.transform.localEulerAngles.x + rotationOffset.x), 
             (target.transform.localEulerAngles.y + rotationOffset.y), 
-            (target.transform.localEulerAngles.z + rotationOffset.z)), rotationMultiplier), 
-        rotationSpeed * Time.deltaTime);
+            (target.transform.localEulerAngles.z + rotationOffset.z)), rotationMultiplier), rotationSpeed * Time.deltaTime);*/
+        transform.rotation = Quaternion.Lerp(transform.rotation, r, rotationSpeed * Time.deltaTime);
         transform.position = targetPos;
     }
     public void Shake(float duration, float intensity) {
