@@ -2,12 +2,12 @@
  A cheap recreation of sonic colors that barely resembles the game
  ## Controls
 
- **WASD**/**Arrow keys**/**Left joystick** Move
- 
- **Space bar**/**A**/**B** Jump/Air Dash
 
- **V**/**X** Boost
-
- **C**/**Y** Use the wisp power thing
-
-
+| Action | Button (Keyboard) | Button (Controller)
+|-----|------|-----
+| Jump / Air Dash | Spacebar | A/B
+| Stomp | Left Shift | RB
+| Rotate Camera | Arrow Keys | Right Joystick
+| Move | WASD | Left Joystick
+| Boost | V | X
+| Color Power | C | Y
