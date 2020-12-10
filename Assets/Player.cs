@@ -11,6 +11,7 @@ public class Player : MonoBehaviour
         public float speed = 20;
         public float drag = 5;
         public float jumpForce = 40;
+        public float doubleJumpForce = 1;
         public float minSpeed = 50;
         public float rotationSpeed = 10;
         public float stompVelocity = 75;
@@ -117,6 +118,7 @@ public class Player : MonoBehaviour
         public float homingAttackForce = 50;
         private float fillAmount = 0;
         private float fallTime = 0;
+        private bool didDoubleJump = false;
         public bool doingHomingAttack = false;
         public bool BounceOffEnemies {
             get {
@@ -195,8 +197,10 @@ public class Player : MonoBehaviour
         this.currWisp = wisp.Clone();
     }
     void FixedUpdate() {
-        if (!isGrounded && rb.velocity.y < 0) fallTime += Time.deltaTime;
+        Vector3 scaled = rb.velocity;
+        scaled.Scale(transform.up);
         if (isGrounded) fallTime = 0;
+        if (!isGrounded && rb.velocity.y < 0) fallTime -= (scaled.x + scaled.y + scaled.z) * Time.deltaTime;
         rb.velocity = new Vector3(Mathf.Clamp(rb.velocity.x, -MaxSpeed, MaxSpeed), rb.velocity.y, Mathf.Clamp(rb.velocity.z, -MaxSpeed, MaxSpeed));
         if (TwoDMode) {
             Vector3 veloc = rb.velocity;
@@ -234,7 +238,6 @@ public class Player : MonoBehaviour
             rb.velocity = Vector3.zero;
             CameraThing.main.Shake(0.2f, (0.2f / 50) * (stompVelocity) + (fallTime / 10));
             //rb.velocity = (transform.up * stompVelocity * (1 + fallTime) / 1.75f) + (rb.velocity / 2);
-            fallTime = 0;
         }
     }
     void Update()
@@ -311,16 +314,19 @@ public class Player : MonoBehaviour
                     dir.Normalize();
                     Vector3 veloc = dir * homingAttackForce;
                     rb.velocity = veloc;
-                } else if (!didAirDash) {
-                    Vector3 scaled = rb.velocity;
-                    scaled.Scale(transform.right + transform.forward);
-                    rb.velocity = scaled;
-                    rb.AddForce(camHolder.TransformDirection(new Vector3(lastMovement.x, 0, lastMovement.y) * airDashForce), ForceMode.Impulse);
-                    didAirDash = true;
-                }    
+                } else if (!didDoubleJump) {
+                    rb.AddForce(transform.up * doubleJumpForce, ForceMode.Impulse);
+                    doingHomingAttack = false;
+                    didDoubleJump = true;
+                }
+
+                  
             } 
-            if (isGrounded) doingHomingAttack = false;
-            
+            if (isGrounded) {
+                doingHomingAttack = false;
+                didAirDash = false;
+                didDoubleJump = false;
+            }
             if (Input.GetButton("Boost") && boostEnabled) {
                 if (lastMovement.magnitude != 0 && boost > 0) {
                     Vector3 hh = Vector3.zero;
@@ -328,8 +334,8 @@ public class Player : MonoBehaviour
                     outlineThing.color = Color.white;
                     Vector3 scaledVelocity = rb.velocity;
                     scaledVelocity.Scale(transform.right + transform.forward);
-                    rb.AddForce(camHolder.TransformDirection(lastMovement.x * boostSpeed * Time.deltaTime * transform.right), ForceMode.Acceleration);
-                    rb.AddForce(camHolder.TransformDirection(lastMovement.y * boostSpeed * Time.deltaTime * transform.forward), ForceMode.Acceleration);
+                    rb.AddForce(camHolder.TransformDirection(lastMovement.normalized.x * boostSpeed * Time.deltaTime * transform.right), ForceMode.Acceleration);
+                    rb.AddForce(camHolder.TransformDirection(lastMovement.normalized.y * boostSpeed * Time.deltaTime * transform.forward), ForceMode.Acceleration);
                     boostThing.sizeDelta = new Vector2(3, 25);
                     glowThing.color += new Color(0, 0, 0, 1);
                     h.anchoredPosition = originalPos + (new Vector2(Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity), Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity)) / 2);
@@ -347,6 +353,13 @@ public class Player : MonoBehaviour
                     boost = Mathf.Clamp(boost - 12.5f, 0, maxBoost * 3);
                     CameraThing.main.Shake(0.5f, 1f);
                 }
+            } 
+            if (Input.GetButtonDown("Boost") && !didAirDash && !isGrounded) {
+                Vector3 scaled = rb.velocity;
+                scaled.Scale(transform.right + transform.forward);
+                rb.velocity = scaled;
+                rb.AddForce(camHolder.TransformDirection(new Vector3(lastMovement.x, 0, lastMovement.y) * airDashForce), ForceMode.Impulse);
+                didAirDash = true;
             }
             if (currWisp != null && Input.GetButtonDown("Wisp Power") && wispsEnabled) {
                 if (!currWisp.beingUsed) {
