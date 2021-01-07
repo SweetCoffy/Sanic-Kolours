@@ -8,6 +8,7 @@ public class Enemy : MonoBehaviour {
     Vector3 originalPos;
     public float boostDrop = 5;
     public float respawnTime = 10;
+    public float parentDamageMultiplier = 1;
     void Start() {
         startHealth = health;
         originalPos = transform.position;
@@ -17,11 +18,10 @@ public class Enemy : MonoBehaviour {
         if (p) {
             Debug.Log("h");
             if (p.DestroyEnemies) {
-                if (p.BounceOffEnemies) p.rb.velocity = Vector3.up * p.jumpForce;
-                //p.stomp = false;
+                if (p.BounceOffEnemies) p.rb.velocity = (p.rb.velocity.magnitude / 2) * p.transform.up;
                 p.doingHomingAttack = false;
-                SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
                 TakeDamage(p);
+                SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
             }
         }
     }
@@ -30,11 +30,10 @@ public class Enemy : MonoBehaviour {
         if (p) {
             Debug.Log("h");
             if (p.DestroyEnemies) {
-                if (p.BounceOffEnemies) p.rb.velocity = (-p.rb.velocity * 0.25f) + Vector3.up * p.jumpForce;
-                //p.stomp = false;
+                if (p.BounceOffEnemies) p.rb.velocity = (p.rb.velocity.magnitude / 2) * p.transform.up;
                 p.doingHomingAttack = false;
-                SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
                 TakeDamage(p);
+                SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
             }
         }
     }
@@ -48,18 +47,22 @@ public class Enemy : MonoBehaviour {
     protected virtual void TakeDamage(Player p, float damage = 1) {
         health -= damage;
         Debug.Log("oof");
+        if (transform.parent) {
+            Enemy e = transform.parent.GetComponent<Enemy>();
+            if (e) e.TakeDamage(p, damage * parentDamageMultiplier);
+        }
         if (health <= 0) {
             if (destroyEffect) Instantiate(destroyEffect, transform.position, transform.rotation);
             if (respawn) {
                 GetComponent<Collider>().enabled = false;
                 GetComponent<Renderer>().enabled = false;
                 SendMessage("OnDie", p, SendMessageOptions.DontRequireReceiver);
-                CameraThing.main.Shake(0.1f, 0.5f);
-                if (p.boost < p.maxBoost * 3) p.boost += boostDrop;
+                CameraThing.main.Shake(0.15f * startHealth, 0.4f);
+                if (p.boost < p.maxBoost) p.boost += boostDrop;
                 StartCoroutine(Respawn());
             } else {
                 SendMessage("OnDie", p, SendMessageOptions.DontRequireReceiver);
-                CameraThing.main.Shake(0.1f, 0.5f);
+                CameraThing.main.Shake(0.15f * startHealth, 0.4f);
                 if (p.boost < p.maxBoost) p.boost += boostDrop;
                 Destroy(gameObject);
             }

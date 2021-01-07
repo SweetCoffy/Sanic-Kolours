@@ -14,7 +14,7 @@ public class HoverWisp : Wisp {
             player.rb.AddForce(Vector3.up * hoverForce * Time.deltaTime);
             timeLeft -= Time.deltaTime;
         }
-        player.rb.AddForce(new Vector3(Input.GetAxis("Horizontal"), 0, Input.GetAxis("Vertical")) * speed * Time.deltaTime);
+        player.rb.AddRelativeForce((player.camHolder.forward * Input.GetAxis("Vertical") * speed * Time.deltaTime) + (player.camHolder.right * Input.GetAxis("Horizontal") * speed * Time.deltaTime));
     }
     public override void End() {
         base.End();

@@ -5,9 +5,9 @@
 
 | Action | Button (Keyboard) | Button (Controller)
 |-----|------|-----
-| Jump / Air Dash | Spacebar | A/B
-| Stomp | Left Shift | RB
+| Jump / Double Jump / Homing Attack | Spacebar | A/B
+| Bounce Attack | Left Shift | RB
 | Rotate Camera | Arrow Keys (broken) | Right Joystick
 | Move | WASD | Left Joystick
-| Boost | V | X
-| Color Power | C | Y
+| Boost / Air Dash | V | X
+| Color Power / Transform | C | Y

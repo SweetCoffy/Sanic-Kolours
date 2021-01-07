@@ -23,7 +23,7 @@ public class Wisp {
         player.outlineThing.color = outlineColor;
         timeLeft -= Time.deltaTime * consumeRate;
         player.boostThing.sizeDelta = new Vector2(3, 25);
-        float shakeIntensity = Wisps.main.shakeIntensity;
+        float shakeIntensity = Wisps.main.shakeIntensity * consumeRate;
         player.barPercent = timeLeft / duration;
         player.h.anchoredPosition = originalPos + new Vector2(Random.Range(-shakeIntensity, shakeIntensity), Random.Range(-shakeIntensity, shakeIntensity));
         player.iconHolder.anchoredPosition = originalHolderPos + new Vector2(Random.Range(-shakeIntensity / 2, shakeIntensity / 2), Random.Range(-shakeIntensity / 2, shakeIntensity / 2));
@@ -40,7 +40,6 @@ public class Wisp {
     public virtual void WispPowerButton() {}
     public virtual void End() {
         player.wispIcon.sprite = player.placeholderIcon;;
-        player.barColor = player.defaultBarColor;
         //player.outlineThing.color = new Color(1, 1, 1, 0);
         player.h.anchoredPosition = originalPos;
         player.iconHolder.anchoredPosition = originalHolderPos;

@@ -3,6 +3,7 @@
 public class CameraThing : MonoBehaviour
 {
     public Rigidbody target;
+    Player p;
     public static CameraThing main;
     public Vector3 offset;
     public float rotationSpeed = 2;
@@ -13,7 +14,10 @@ public class CameraThing : MonoBehaviour
     float shakeIntensity = 0;
     Vector3 targetPos;
     public float rSpeed = 180;
+    public float resetSpeed = 10;
     float yRotation = 0;
+    float defaultYRotation = 0;
+    float xRotation = 0;
     public float minX = -60;
     public float maxX = 60;
     [Range(0, 1)]
@@ -24,10 +28,23 @@ public class CameraThing : MonoBehaviour
     void Start() {
         main = this;
         yRotation = transform.localEulerAngles.y;
+        p = target.GetComponent<Player>();
     }
     void FixedUpdate()
     {
-        yRotation += Input.GetAxis("Camera Horizontal") * Time.deltaTime * rSpeed;
+        bool hhh = true;
+        if (p) {
+            if (p.TwoDMode) {
+                hhh = false;
+                yRotation = Mathf.Lerp(yRotation, 0, resetSpeed * Time.deltaTime);
+                xRotation = Mathf.Lerp(xRotation, -26.082f, resetSpeed * Time.deltaTime);
+            }
+        }
+        if (hhh) {
+            yRotation += Input.GetAxis("Camera Horizontal") * Time.deltaTime * rSpeed;
+            xRotation = Mathf.Clamp(xRotation + (Input.GetAxis("Camera Vertical") * Time.deltaTime * rSpeed), minX, maxX);
+        }
+        xAxis.localRotation = Quaternion.Euler(xRotation, 0, 0);
         Vector3 g = new Vector3(0, yRotation, 0);
         currVeloc = Vector3.Lerp(currVeloc, target.velocity, speed * Time.deltaTime);
         Vector3 h = currVeloc;

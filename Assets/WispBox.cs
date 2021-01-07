@@ -5,11 +5,14 @@ public class WispBox : MonoBehaviour {
     }
     public WispThings wisp = WispThings.Hover;
     Wisp w;
-    void Start() {
+    bool didTheThing = false;
+    void Update() {
+        if (!Wisps.main || didTheThing) return;
         if (wisp == WispThings.Hover) w = Wisps.main.hover;
         if (wisp == WispThings.Rocket) w = Wisps.main.rocket;
         if (wisp == WispThings.Cube) w = Wisps.main.cube;
         if (wisp == WispThings.Slowmo) w = Wisps.main.slowmo;
+        didTheThing = true;
     }
     void OnDamage(Player p) {
         if (wisp == WispThings.Boost) {

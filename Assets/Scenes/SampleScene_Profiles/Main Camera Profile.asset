@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: adb84e30e02715445aeb9959894e3b4d, type: 3}
   m_Name: ColorGrading
   m_EditorClassIdentifier: 
-  active: 1
+  active: 0
   enabled:
     overrideState: 1
     value: 1
@@ -1362,6 +1362,7 @@ MonoBehaviour:
   settings:
   - {fileID: 293959050441622859}
   - {fileID: -4330944541821414674}
+  - {fileID: 7573376843967923526}
 --- !u!114 &293959050441622859
 MonoBehaviour:
   m_ObjectHideFlags: 3
@@ -1392,7 +1393,7 @@ MonoBehaviour:
     value: 65474.33
   diffusion:
     overrideState: 1
-    value: 8.21
+    value: 10
   anamorphicRatio:
     overrideState: 1
     value: 0
@@ -1401,7 +1402,7 @@ MonoBehaviour:
     value: {r: 6.4222345, g: 6.4222345, b: 6.4222345, a: 1}
   fastMode:
     overrideState: 1
-    value: 1
+    value: 0
   dirtTexture:
     overrideState: 0
     value: {fileID: 0}
@@ -1409,3 +1410,25 @@ MonoBehaviour:
   dirtIntensity:
     overrideState: 0
     value: 0
+--- !u!114 &7573376843967923526
+MonoBehaviour:
+  m_ObjectHideFlags: 3
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b94fcd11afffcb142908bfcb1e261fba, type: 3}
+  m_Name: MotionBlur
+  m_EditorClassIdentifier: 
+  active: 0
+  enabled:
+    overrideState: 1
+    value: 1
+  shutterAngle:
+    overrideState: 1
+    value: 114
+  sampleCount:
+    overrideState: 1
+    value: 4

@@ -6,7 +6,7 @@ public class CubeWisp : Wisp {
         base.Start();
         //Game.cubeEnabled = !Game.cubeEnabled;
         player.rb.velocity = Vector3.down * 75;
-        consumeRate = 0;
+        consumeRate = 0.5f;
         Game.cubeEnabled = !Game.cubeEnabled;
         player.inputEnabled = false;
     }

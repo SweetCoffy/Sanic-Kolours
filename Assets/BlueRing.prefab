@@ -3286,7 +3286,7 @@ GameObject:
   - component: {fileID: 2862627514725012495}
   - component: {fileID: 1358040193646500955}
   - component: {fileID: 8923805645930880819}
-  m_Layer: 8
+  m_Layer: 12
   m_Name: BlueRing
   m_TagString: Untagged
   m_Icon: {fileID: 0}
