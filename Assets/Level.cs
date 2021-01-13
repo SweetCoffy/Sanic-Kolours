@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Collections;
 using UnityEngine.SceneManagement;
 [CreateAssetMenu(fileName = "New Level", menuName = "Level")]
 public class Level : ScriptableObject {
@@ -7,9 +8,10 @@ public class Level : ScriptableObject {
     public Sprite icon;
     public string fullName = "Test Zone";
     public string act = "";
+    public Level next;
     public void Start() {
-        Debug.Log($"Starting level ${fullName}...");
-        SceneManager.LoadScene(buildIndex);
-        Debug.Log($"Level ${fullName} started");
+        Debug.Log($"Starting level {fullName}...");
+        AsyncOperation ao = SceneManager.LoadSceneAsync(buildIndex);
+        if (ZoneInfo.current) ZoneInfo.current.Loading(ao, this);
     }
 }

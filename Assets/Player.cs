@@ -254,6 +254,9 @@ public class Player : MonoBehaviour
         originalPos = h.anchoredPosition;
         barColor = defaultBarColor;
         hImage = h.GetComponent<Image>();
+        ConstantForce c = GetComponent<ConstantForce>();
+        c.relativeForce *= ZoneInfo.current.gravityModifier;
+        c.force *= ZoneInfo.current.gravityModifier;
     }
     public void ChangeWisp(Wisp wisp) {
 
@@ -483,7 +486,7 @@ public class Player : MonoBehaviour
             } 
             if (Input.GetButton("Boost") && boostEnabled && CurrSpeed > (minSpeed / 2)) {
                 if (movement.magnitude != 0 && boost > 0) {
-                    if (isSuper) ringCooldown -= Time.deltaTime;
+                    if (isSuper) ringCooldown -= Time.deltaTime * 3;
                     float m = 1;
                     if (isSuper) m = superBoostSpeedMultiplier;
                     Vector3 hh = Vector3.zero;

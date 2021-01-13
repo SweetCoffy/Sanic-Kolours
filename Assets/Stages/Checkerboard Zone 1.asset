@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1a7b755b9e4a65e4f919e28f599e044b, type: 3}
+  m_Name: Checkerboard Zone 1
+  m_EditorClassIdentifier: 
+  buildIndex: 1
+  zoneName: Checkerboard Hill Zone
+  icon: {fileID: 21300000, guid: a30d60f8f9baeba4fb4b69b16b50fef7, type: 3}
+  fullName: Checkerboard Hill Zone 1
+  act: ACT 1
+  next: {fileID: 11400000, guid: 9ec1ea1cf5202904da84823ad1f9ce58, type: 2}
