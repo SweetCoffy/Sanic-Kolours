@@ -25,6 +25,18 @@ public class ZoneInfo : MonoBehaviour {
     public void Loading(AsyncOperation ao, Level l) {
         StartCoroutine(_Loading(ao, l));
     }
+    public void SlowMotion(float timescale, float duration) {
+        StartCoroutine(_SlowMotion(timescale, duration));
+    }
+    IEnumerator _SlowMotion(float timescale, float duration) {
+        float timeLeft = duration;
+        while (timeLeft > 0) {
+            timeLeft -= Time.unscaledDeltaTime;
+            Time.timeScale = Mathf.Lerp(timescale, 1, timeLeft / duration);
+            yield return null;
+        }
+        Time.timeScale = 1;
+    }
     IEnumerator _Loading(AsyncOperation ao, Level l) {
         while (!ao.isDone) {
             Debug.Log($"Loading level {l.fullName}: {Mathf.Floor(ao.progress * 100)}%");

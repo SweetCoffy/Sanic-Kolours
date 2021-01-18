@@ -14,6 +14,8 @@ public class Player : MonoBehaviour
         public float jumpForce = 40;
         public float doubleJumpForce = 1;
         public float minSpeed = 50;
+        public float runningParticlesStart = 40;
+        public float surfaceMinSpeed = 40;
         public float rotationSpeed = 10;
         public float stompVelocity = 75;
         public float bounceMax = 15;
@@ -111,8 +113,12 @@ public class Player : MonoBehaviour
         public float baseFov = 70;
         public float fovLimit = 150;
     [Header("Other")]
+        public float superDamage = 5;
+        public float stompDamage = 3;
+        public float boostDamage = 2;
         public bool wispsEnabled = true;
         public Transform graphics;
+        public AttractRings attractRings;
         public bool inputEnabled = true;
         public float homingAttackRadius = 10;
         Vector2 originalPos;
@@ -147,6 +153,8 @@ public class Player : MonoBehaviour
         private float fillAmount = 0;
         float superStartRings = 0;
         public Color superDefaultBarColor = Color.yellow;
+        public Gradient superColorGradient;
+        public float gradientSpeed = 0.01f;
         private float fallTime = 0;
         private bool didDoubleJump = false;
         public float Drag {
@@ -182,15 +190,16 @@ public class Player : MonoBehaviour
             set {
                 _rings = value;
                 t = 0.8f;
-                if (isSuper) wispBar.color = Color.white;
+                //if (isSuper) wispBar.color = Color.white;
                 if (value == 0) RingCounter.main.color = Color.red;
                 else RingCounter.main.color = Color.white;
                 RingCounter.main.text = value.ToString("000");
             }
         }
         bool doingLightSpeedDash = false;
-        bool isBoosting = false;
+        public bool isBoosting = false;
         float ringCooldown = 1;
+        float timeThing = 0;
         Vector2 lastMovement = Vector2.zero;
     void UpdateHomingAttackTarget() {
         if (doingHomingAttack) return;
@@ -293,7 +302,7 @@ public class Player : MonoBehaviour
         if (didHit) {
             Debug.DrawRay(transform.position, hit.point - transform.position, Color.green);
             Quaternion h = Quaternion.FromToRotation(Vector3.up, hit.normal.normalized).normalized;
-            Vector3 requiredSpeed = new Vector3(h.x, h.y, h.z) * (minSpeed / 2);
+            Vector3 requiredSpeed = new Vector3(h.x, h.y, h.z) * (surfaceMinSpeed);
             if (CurrSpeed > requiredSpeed.magnitude) {
                 Quaternion r = Quaternion.Lerp(rb.rotation, h, rotationSpeed * Time.deltaTime);
                 rb.rotation = r;
@@ -341,6 +350,9 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
+        if (attractRings) {
+            attractRings.enabled = isBoosting || isSuper;
+        }
         speedBar.fillAmount = CurrSpeed / speedBarMax;
         if (rings > superStartRings) superStartRings = rings;
         if (isSuper) {
@@ -351,6 +363,11 @@ public class Player : MonoBehaviour
                 if (ringCooldown > 0) ringCooldown -= Time.deltaTime;
                 if (ringCooldown <= 0) {rings--;ringCooldown = 1;}
                 h.anchoredPosition = originalPos + (new Vector2(Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity), Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity)) / 1.5f);
+            }
+            timeThing += Time.deltaTime * gradientSpeed;
+            if (timeThing > 1) timeThing = 0;
+            if (superColorGradient != null) {
+                superDefaultBarColor = superColorGradient.Evaluate(timeThing);
             }
         }
         if (anim) AnimationUpdate();
@@ -365,7 +382,7 @@ public class Player : MonoBehaviour
             Vector3 dir = target1.center - transform.position;
             dir.Normalize();
             Vector3 veloc = dir * homingAttackForce;
-            rb.velocity = veloc;
+            rb.velocity = Vector3.Slerp(rb.velocity.normalized, dir, 15 * Time.deltaTime) * homingAttackForce;
         }
         target.localScale = Vector3.one * (1 + scaleMultiplier);
         if (scaleMultiplier > 0) {
@@ -472,10 +489,10 @@ public class Player : MonoBehaviour
                 if (homingAttackTarget && !doingHomingAttack) {
                     doingHomingAttack = true;
                     spinning = true;
-                    Vector3 dir = target1.center - transform.position;
-                    dir.Normalize();
-                    Vector3 veloc = dir * homingAttackForce;
-                    rb.velocity = veloc;
+                    //Vector3 dir = target1.center - transform.position;
+                    //dir.Normalize();
+                    //Vector3 veloc = dir * homingAttackForce;
+                    //rb.velocity = veloc;
                 } else if (!didDoubleJump) {
                     rb.AddForce(transform.up * doubleJumpForce, ForceMode.Impulse);
                     doingHomingAttack = false;
@@ -562,7 +579,7 @@ public class Player : MonoBehaviour
         }
         if (runningParticles) {
             var e = runningParticles.emission;
-            e.enabled = isGrounded && (isBoosting || CurrSpeed > minSpeed);
+            e.enabled = isGrounded && (isBoosting || CurrSpeed > runningParticlesStart);
         }
         if ((boost > 0 && boostEnabled) || (currWisp != null && currWisp.timeLeft > 0)) {
             hImage.color = Color.white;

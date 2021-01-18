@@ -19,9 +19,13 @@ public class Enemy : MonoBehaviour {
             Debug.Log("h");
             if (p.DestroyEnemies) {
                 if (p.BounceOffEnemies) p.rb.velocity = (p.rb.velocity.magnitude / 2) * p.transform.up;
-                p.doingHomingAttack = false;
-                TakeDamage(p);
+                float damage = 1;
+                if (p.stomp) damage += p.stompDamage;
+                if (p.isSuper) damage += p.superDamage;
+                if (p.isBoosting) damage += p.boostDamage;
+                TakeDamage(p, damage);
                 SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
+                p.doingHomingAttack = false;
             }
         }
     }
@@ -31,9 +35,13 @@ public class Enemy : MonoBehaviour {
             Debug.Log("h");
             if (p.DestroyEnemies) {
                 if (p.BounceOffEnemies) p.rb.velocity = (p.rb.velocity.magnitude / 2) * p.transform.up;
-                p.doingHomingAttack = false;
-                TakeDamage(p);
+                float damage = 1;
+                if (p.stomp) damage += p.stompDamage;
+                if (p.isSuper) damage += p.superDamage;
+                if (p.isBoosting) damage += p.boostDamage;
+                TakeDamage(p, damage);
                 SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
+                p.doingHomingAttack = false;
             }
         }
     }
@@ -44,6 +52,7 @@ public class Enemy : MonoBehaviour {
         health = startHealth;
         transform.position = originalPos;
     }
+
     protected virtual void TakeDamage(Player p, float damage = 1) {
         health -= damage;
         Debug.Log("oof");
@@ -53,16 +62,17 @@ public class Enemy : MonoBehaviour {
         }
         if (health <= 0) {
             if (destroyEffect) Instantiate(destroyEffect, transform.position, transform.rotation);
+            ZoneInfo.current.SlowMotion(0.2f, Mathf.Clamp(damage, 0, startHealth) * 0.12f);
             if (respawn) {
                 GetComponent<Collider>().enabled = false;
                 GetComponent<Renderer>().enabled = false;
                 SendMessage("OnDie", p, SendMessageOptions.DontRequireReceiver);
-                CameraThing.main.Shake(0.15f * startHealth, 0.4f);
+                CameraThing.main.Shake(0.15f * damage, 0.4f);
                 if (p.boost < p.maxBoost) p.boost += boostDrop;
                 StartCoroutine(Respawn());
             } else {
                 SendMessage("OnDie", p, SendMessageOptions.DontRequireReceiver);
-                CameraThing.main.Shake(0.15f * startHealth, 0.4f);
+                CameraThing.main.Shake(0.15f * damage, 0.4f);
                 if (p.boost < p.maxBoost) p.boost += boostDrop;
                 Destroy(gameObject);
             }
