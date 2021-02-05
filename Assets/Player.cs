@@ -13,12 +13,15 @@ public class Player : MonoBehaviour
         public float drag = 5;
         public float jumpForce = 40;
         public float doubleJumpForce = 1;
-        public float minSpeed = 50;
+        [HideInInspector] public bool spring = false;
+        public float minSpeed = 50;        
         public float runningParticlesStart = 40;
+        public float speedEffectStart = 30;
         public float surfaceMinSpeed = 40;
         public float rotationSpeed = 10;
         public float stompVelocity = 75;
         public float bounceMax = 15;
+        public float bounceMin = 15;
         public float bounceMultiplier = 3;
         public float homingAttackTimeout = 3;
         float homingAttackTime = 0;
@@ -31,6 +34,7 @@ public class Player : MonoBehaviour
         public float superBoostSpeedMultiplier = 2;
         public float multiplier = 3;
         public float maxSpeed = 75;
+        public bool didJump = false;
         public float Speed {
             get {
                 float m = 1;
@@ -47,11 +51,16 @@ public class Player : MonoBehaviour
     [Header("UI")]
         public float speedBarMax = 100;
         public Image outlineThing;
+        public Image ringsThing;
+        public Gradient ringsThingGradient;
+        public float ringsThingSpeed = 1f;
+        float ringsThingTime = 0;
         public Image wispIcon;
         public RectTransform h;
         private Image hImage;
         public Image speedBar;
         public float barPercent = 1;
+        public Image boostBarBackground;
         public Image wispBar;
         public Image boostGauge2;
         public Image boostGauge3;
@@ -84,8 +93,8 @@ public class Player : MonoBehaviour
         public float maxBoost = 100;
         public float boost {
             get {
-                if (isSuper) return maxBoost;
-                return _boost;
+                //if (isSuper) return maxBoost;
+                return Mathf.Clamp(_boost, 0, maxBoost);
             }
             set {
                 if (_boost - value < 0 && !isSuper) wispBar.color = Color.white;
@@ -101,7 +110,6 @@ public class Player : MonoBehaviour
         float secondsSinceLastRaycast = 0;
         Vector2 movement;
         bool jump = false;
-        private float t = 0;
     [Header("Fancy effects")]
         public float fovIntensity = 0.5f;
         public float fovSpeed = 10;
@@ -109,11 +117,17 @@ public class Player : MonoBehaviour
         public Transform boostEffectTransform;
         public Transform fakeShadow;
         public ParticleSystem runningParticles;
+        public ParticleSystem speedEffect;
         public TrailRenderer trail;
         public float baseFov = 70;
         public float fovLimit = 150;
     [Header("Other")]
+        public bool lostWorldHomingAttack = false;
+        public GameObject droppedRing;
+        [HideInInspector] public bool dead = false;
         public float superDamage = 5;
+        public float superBoostRegenRate = 50;
+        public float superBoostRegenRateBySpeed = 0.5f;
         public float stompDamage = 3;
         public float boostDamage = 2;
         public bool wispsEnabled = true;
@@ -122,12 +136,13 @@ public class Player : MonoBehaviour
         public bool inputEnabled = true;
         public float homingAttackRadius = 10;
         Vector2 originalPos;
-        Vector3 facing = Vector3.forward;
+        public Vector3 facing = Vector3.forward;
         public bool destroyEnemies;
         public Transform target;
         public HomingAttackTarget target1;
         bool didAirDash = false;
         private float scaleMultiplier = 0;
+        public float invincibility = 1;
         public Transform lastCheckpoint;
         public Transform homingAttackTarget {
             get {
@@ -155,13 +170,16 @@ public class Player : MonoBehaviour
         public Color superDefaultBarColor = Color.yellow;
         public Gradient superColorGradient;
         public float gradientSpeed = 0.01f;
+        public static int score = 0;
         private float fallTime = 0;
         private bool didDoubleJump = false;
+        float lastBoostTime = 0;
+        Color co;
         public float Drag {
             get {
+                if (spinning || spring) return 0;
                 if (movement.magnitude > 0) return drag * 0.3f;
-                if (spinning) return 0;
-                else return drag;
+                return drag;
             }
         }
         public bool doingHomingAttack = false;
@@ -188,18 +206,19 @@ public class Player : MonoBehaviour
         public int rings {
             get => _rings;
             set {
+                float diff = value - _rings;
+                if (diff > 0) {
+                    boost += diff * 5;
+                }
                 _rings = value;
-                t = 0.8f;
-                //if (isSuper) wispBar.color = Color.white;
-                if (value == 0) RingCounter.main.color = Color.red;
-                else RingCounter.main.color = Color.white;
-                RingCounter.main.text = value.ToString("000");
+                RingCounter.main.text = value + ""; 
             }
         }
         bool doingLightSpeedDash = false;
         public bool isBoosting = false;
         float ringCooldown = 1;
         float timeThing = 0;
+        public static Player main;
         Vector2 lastMovement = Vector2.zero;
     void UpdateHomingAttackTarget() {
         if (doingHomingAttack) return;
@@ -259,6 +278,8 @@ public class Player : MonoBehaviour
         Time.timeScale = 1;
     }
     void Start() {
+        main = this;
+        if (boostBarBackground) co = boostBarBackground.color;
         currWisp = null;
         originalPos = h.anchoredPosition;
         barColor = defaultBarColor;
@@ -280,6 +301,26 @@ public class Player : MonoBehaviour
         this.currWisp = wisp.Clone();
     }
     void FixedUpdate() {
+        if (dead) return;
+        RaycastHit hit;
+        bool didHit = Physics.Raycast(transform.position, -transform.up, out hit, distance, groundMask);
+        if (didHit) {
+            Debug.DrawRay(transform.position, hit.point - transform.position, Color.green);
+            Quaternion h = Quaternion.FromToRotation(Vector3.up, hit.normal.normalized).normalized;
+            Vector3 requiredSpeed = new Vector3(h.x, h.y, h.z) * (surfaceMinSpeed);
+            if (CurrSpeed > requiredSpeed.magnitude) {
+                Quaternion r = Quaternion.Lerp(rb.rotation, h, rotationSpeed * Time.deltaTime);
+                rb.rotation = r;
+                //if (isGrounded && h != Quaternion.identity) rb.MovePosition(hit.point);
+            } else {
+                rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
+            }
+            secondsSinceLastRaycast = 0;
+        } else if (secondsSinceLastRaycast > maxTimeSinceLastRaycast){
+            Debug.DrawRay(transform.position, -transform.up * distance, Color.red);
+            rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
+        }
+        if (rb.position.y < -600) Kill();
         Vector3 scaled = rb.velocity;
         scaled.Scale(transform.up);
         if (isGrounded) fallTime = 0;
@@ -291,29 +332,24 @@ public class Player : MonoBehaviour
             rb.velocity = veloc;
             if (twoDModeZ != 0) rb.position = Vector3.Lerp(rb.position, new Vector3(rb.position.x, rb.position.y, twoDModeZ), 7 * Time.deltaTime);
         }
-        RaycastHit hit;
+        if (didJump && !isGrounded && !didAirDash) spinning = true;
+        else if (isGrounded && !Input.GetButton("Stomp")) spinning = false;
+        if (isGrounded && rb.velocity.y < 0.1f) didJump = false;
+        if (inputEnabled) {
+            if (jump && isGrounded) {
+                rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+                jump = false;
+                didJump = true;
+                isGrounded = false;
+                spinning = true;
+            }
+        }
+        if (isGrounded) spring = false;
         Collider[] hhhh = Physics.OverlapSphere(floorDetection.position, radius, groundMask);
         isGrounded = hhhh.Length > 0;
-        bool didHit = Physics.Raycast(transform.position, -transform.up, out hit, distance, groundMask);
         if (!(spinning && isGrounded)) {
-            rb.AddRelativeForce(movement.x * Speed * Time.deltaTime * camHolder.right);
-            rb.AddRelativeForce(movement.y * Speed * Time.deltaTime * camHolder.forward);
+            rb.AddRelativeForce(((camHolder.forward * movement.y) + (camHolder.right * movement.x)) * Speed * Time.deltaTime);
         } 
-        if (didHit) {
-            Debug.DrawRay(transform.position, hit.point - transform.position, Color.green);
-            Quaternion h = Quaternion.FromToRotation(Vector3.up, hit.normal.normalized).normalized;
-            Vector3 requiredSpeed = new Vector3(h.x, h.y, h.z) * (surfaceMinSpeed);
-            if (CurrSpeed > requiredSpeed.magnitude) {
-                Quaternion r = Quaternion.Lerp(rb.rotation, h, rotationSpeed * Time.deltaTime);
-                rb.rotation = r;
-            } else {
-                rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
-            }
-            secondsSinceLastRaycast = 0;
-        } else if (secondsSinceLastRaycast > maxTimeSinceLastRaycast){
-            Debug.DrawRay(transform.position, -transform.up * distance, Color.red);
-            rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
-        }
         var target = rb.velocity;
         target.Scale(transform.up);
         rb.velocity = Vector3.Lerp(rb.velocity, target, Drag * Time.deltaTime);
@@ -325,11 +361,11 @@ public class Player : MonoBehaviour
             stomp = false;
             //inputEnabled = true;
             if (Input.GetButton("Stomp")) {
-                rb.velocity = Vector3.zero;
-                CameraThing.main.Shake(0.2f, ((0.2f / 50) * stompVelocity) );
+                spinning = true;
             } else {
-                Vector3 v = (transform.up * fallTime) * bounceMultiplier;
-                rb.velocity = new Vector3(Mathf.Clamp(v.x, -bounceMax, bounceMax), Mathf.Clamp(v.y, -bounceMax, bounceMax), Mathf.Clamp(v.z, -bounceMax, bounceMax));
+                float y = Mathf.Clamp(fallTime * bounceMultiplier, bounceMin, bounceMax);
+                Vector3 v = (transform.up * y);
+                rb.velocity = v;
             }
         }
         if (inputEnabled && Input.GetButton("Light Speed Dash")) {
@@ -350,11 +386,18 @@ public class Player : MonoBehaviour
     }
     void Update()
     {
+        if (dead) return;
+        ringsThingTime += Time.deltaTime * ringsThingSpeed;
+        if (ringsThingTime > 1) ringsThingTime = 0;
+        if ((isSuper && rings > 9) || (!isSuper && rings > 0)) ringsThingTime = 0;
+        ringsThing.color = ringsThingGradient.Evaluate(ringsThingTime);
+        if (invincibility > 0) invincibility -= Time.deltaTime;
         if (attractRings) {
             attractRings.enabled = isBoosting || isSuper;
         }
         speedBar.fillAmount = CurrSpeed / speedBarMax;
         if (rings > superStartRings) superStartRings = rings;
+        if (lastBoostTime < 15) lastBoostTime += Time.deltaTime;
         if (isSuper) {
             if (rings <= 0) {
                 isSuper = false;
@@ -369,6 +412,7 @@ public class Player : MonoBehaviour
             if (superColorGradient != null) {
                 superDefaultBarColor = superColorGradient.Evaluate(timeThing);
             }
+            if (boost < maxBoost && !isBoosting) boost += ((lastBoostTime / 15) * superBoostRegenRate + (CurrSpeed * superBoostRegenRateBySpeed)) * Time.deltaTime;
         }
         if (anim) AnimationUpdate();
         if (doingHomingAttack) {
@@ -382,7 +426,10 @@ public class Player : MonoBehaviour
             Vector3 dir = target1.center - transform.position;
             dir.Normalize();
             Vector3 veloc = dir * homingAttackForce;
-            rb.velocity = Vector3.Slerp(rb.velocity.normalized, dir, 15 * Time.deltaTime) * homingAttackForce;
+            if (lostWorldHomingAttack) rb.velocity = Vector3.Slerp(rb.velocity.normalized, dir, 15 * Time.deltaTime) * homingAttackForce;
+            else rb.velocity = veloc;
+
+            
         }
         target.localScale = Vector3.one * (1 + scaleMultiplier);
         if (scaleMultiplier > 0) {
@@ -415,11 +462,12 @@ public class Player : MonoBehaviour
         float barValue = fillAmount;
         if (float.IsNaN(barValue)) barValue = 0;
         if (float.IsNaN(barTarget)) barTarget = 0;
-        fillAmount = Mathf.Lerp(barValue, barTarget, 6 * Time.deltaTime);
+        fillAmount = Mathf.Lerp(barValue, barTarget, 10 * Time.deltaTime);
+        if (boostBarBackground)boostBarBackground.color = co * wispBar.color;
         wispBar.fillAmount = fillAmount;
         boostGauge2.fillAmount = fillAmount - 1;
         boostGauge3.fillAmount = fillAmount - 2;
-        boostThing.localPosition = (Vector3)new Vector2(wispBar.fillAmount * wispBarRect.sizeDelta.x, 0);
+        boostThing.localPosition = (Vector3)new Vector2(fillAmount * wispBarRect.sizeDelta.x, 0);
         //if (TwoDMode) rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
         //else rb.constraints = RigidbodyConstraints.FreezeRotation;
         if (movement.magnitude > 0.1f) {
@@ -439,16 +487,14 @@ public class Player : MonoBehaviour
             if (!currWisp.beingUsed) {
                 wispIcon.sprite = currWisp.icon;
                 //wispIcon.color = new Color(0.9f, 0.9f, 0.9f, 0.9f);
-                if (!isSuper)barPercent = boost / maxBoost;
-                else barPercent = ((float)rings + ringCooldown) / (float)superStartRings;
+                barPercent = boost / maxBoost;
                 if (!isSuper) barColor = defaultBarColor;
                 if (isSuper) barColor = superDefaultBarColor;
                 iconHolderImage.sprite = wispBarActive;
                 iconHolderImage.color = Color.white;
             }
             if (currWisp.beingUsed && currWisp.timeLeft <= 0) {
-                if (!isSuper)barPercent = boost / maxBoost;
-                else barPercent = (float)rings / (float)superStartRings;
+                barPercent = boost / maxBoost;
                 if (!isSuper) barColor = defaultBarColor;
                 if (isSuper) barColor = superDefaultBarColor;
                 iconHolderImage.sprite = wispBarIdle;
@@ -457,8 +503,7 @@ public class Player : MonoBehaviour
         } else {
             iconHolderImage.sprite = wispBarIdle;
             iconHolderImage.color = Color.white * 0.5f + Color.black;
-            if (!isSuper)barPercent = boost / maxBoost;
-            else barPercent = (float)rings / (float)superStartRings;
+            barPercent = boost / maxBoost;
             if (!isSuper) barColor = defaultBarColor;
             if (isSuper) barColor = superDefaultBarColor;
         }
@@ -501,18 +546,17 @@ public class Player : MonoBehaviour
 
                   
             } 
-            if (Input.GetButton("Boost") && boostEnabled && CurrSpeed > (minSpeed / 2)) {
+            if (Input.GetButton("Boost") && boostEnabled) {
                 if (movement.magnitude != 0 && boost > 0) {
-                    if (isSuper) ringCooldown -= Time.deltaTime * 3;
                     float m = 1;
                     if (isSuper) m = superBoostSpeedMultiplier;
                     Vector3 hh = Vector3.zero;
                     isBoosting = true;
+                    lastBoostTime = 0;
                     outlineThing.color = Color.white;
                     Vector3 scaledVelocity = rb.velocity;
                     scaledVelocity.Scale(transform.right + transform.forward);
-                    rb.AddRelativeForce(lastMovement.normalized.x * boostSpeed * Time.deltaTime * camHolder.right * m, ForceMode.Acceleration);
-                    rb.AddRelativeForce(lastMovement.normalized.y * boostSpeed * Time.deltaTime * camHolder.forward * m, ForceMode.Acceleration);
+                    rb.AddRelativeForce(((camHolder.forward * movement.y) + (camHolder.right * movement.x)) * boostSpeed * Time.deltaTime * m, ForceMode.Acceleration);
                     boostThing.sizeDelta = new Vector2(3, 25);
                     glowThing.color += new Color(0, 0, 0, 1);
                     h.anchoredPosition = originalPos + (new Vector2(Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity), Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity)) / 2);
@@ -533,8 +577,7 @@ public class Player : MonoBehaviour
                     outlineThing.color = Color.white;
                     Vector3 scaledVelocity = rb.velocity;
                     scaledVelocity.Scale(transform.right + transform.forward);
-                    rb.AddRelativeForce(lastMovement.normalized.x * boostSpeed * Time.deltaTime * camHolder.right, ForceMode.VelocityChange);
-                    rb.AddRelativeForce(lastMovement.normalized.y * boostSpeed * Time.deltaTime * camHolder.forward, ForceMode.VelocityChange);
+                    rb.AddRelativeForce(((camHolder.forward * movement.y) + (camHolder.right * movement.x)) * boostSpeed * Time.deltaTime, ForceMode.VelocityChange);
                     boost = Mathf.Clamp(boost - 12.5f, 0, maxBoost * 3);
                     CameraThing.main.Shake(0.5f, 1f);
                 }
@@ -568,11 +611,6 @@ public class Player : MonoBehaviour
             jump = false;
             movement = Vector2.zero;
         }
-        if (jump && isGrounded) {
-            rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
-            jump = false;
-            spinning = true;
-        }
         if (doingHomingAttack) spinning = true;
         if (trail) {
             trail.emitting = isBoosting || doingHomingAttack || stomp || didAirDash || spinning || CurrSpeed > minSpeed;
@@ -581,22 +619,64 @@ public class Player : MonoBehaviour
             var e = runningParticles.emission;
             e.enabled = isGrounded && (isBoosting || CurrSpeed > runningParticlesStart);
         }
-        if ((boost > 0 && boostEnabled) || (currWisp != null && currWisp.timeLeft > 0)) {
-            hImage.color = Color.white;
-        } else {
-            hImage.color = Color.white * 0.5f + Color.black;
+        if (speedEffect) {
+            var e = speedEffect.emission;
+            e.enabled = isBoosting || RealCurrSpeed > speedEffectStart || doingHomingAttack;
         }
         Camera.main.fieldOfView = Mathf.Lerp(Camera.main.fieldOfView, Mathf.Clamp(baseFov + (CurrSpeed * fovIntensity), 20, fovLimit), fovSpeed * Time.deltaTime);
         if (glowThing.color.a > 1) glowThing.color = new Color(glowThing.color.r, glowThing.color.g, glowThing.color.b, 1);
         outlineThing.color -= new Color(0, 0, 0, 2 * Time.deltaTime);
-        boostThing.sizeDelta *= new Vector2(1, 0.9f);
+        boostThing.sizeDelta *= new Vector2(1, 0.8f);
         glowThing.color -= new Color(0, 0, 0, 2 * Time.deltaTime);
-        if (ringThing) ringThing.material.SetColor("_Color", new Color(t, t, t, 0));
-        if (t > 0) t -= Time.deltaTime * 2;
-        if (t < 0) t = 0;
         boostEffect.gameObject.SetActive(isBoosting);
         if (boost > maxBoost) boost = maxBoost;
     } 
+    public void TakeDamage(Vector3 knockback) {
+        if (dead) return;
+        if (invincibility > 0 || isSuper) return;
+        rb.velocity = knockback;
+        if (rings <= 0) {
+            Kill();
+            return;
+        }
+        var droppedRings = rings;
+        var angle = 360 / droppedRings;
+        for (var i = 0; i < droppedRings; i++) {
+            Rigidbody r = Instantiate(droppedRing, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
+            r.angularVelocity = new Vector3(Random.Range(-60, 60), Random.Range(-60, 60), Random.Range(-60, 60));
+            r.velocity = (Quaternion.Euler(0, i * angle, 0) * Vector3.forward) * 7 + (Vector3.up * 25);
+        }
+        rings = 0;
+        invincibility = 0.7f;
+    }
+    public void Kill() {
+        if (dead) return;
+        dead = true;
+        rings = 0;
+        boost = 0;
+        currWisp = null;
+        StartCoroutine(_Kill());
+    }
+    IEnumerator _Kill() {
+        //GetComponent<Collider>().enabled = false;
+        //rb.velocity = Vector3.up * 17;
+        rb.angularVelocity = new Vector3(Random.Range(-69, 69), Random.Range(-69, 69), Random.Range(-69, 69));
+        rb.useGravity = true;
+        GetComponent<ConstantForce>().enabled = false;
+        rb.constraints = RigidbodyConstraints.None;
+        inputEnabled = false;
+        yield return new WaitForSeconds(2.7f);
+        GetComponent<ConstantForce>().enabled = true;
+        rb.useGravity = false;
+        rb.rotation = Quaternion.identity;
+        rb.constraints = RigidbodyConstraints.FreezeRotation;
+        inputEnabled = true;
+        //GetComponent<Collider>().enabled = true;
+        dead = false;
+        rb.velocity = Vector3.zero;
+        rb.position = lastCheckpoint.position;
+        invincibility = 1;
+    }
     void OnDrawGizmos() {
         Gizmos.DrawWireSphere(transform.position, homingAttackRadius);
         if (!floorDetection) return;

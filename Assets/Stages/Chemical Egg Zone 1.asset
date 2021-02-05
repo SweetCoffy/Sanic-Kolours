@@ -15,6 +15,6 @@ MonoBehaviour:
   buildIndex: 3
   zoneName: Chemical Egg Zone
   icon: {fileID: 0}
-  fullName: Chemical Egg Zone 1
-  act: ACT 1
+  fullName: Chemical Egg Zone
+  act: Test Act
   next: {fileID: 11400000, guid: 7cd9df087ecd8664997a9f4c028f4d40, type: 2}

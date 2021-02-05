@@ -11,8 +11,10 @@ public class Ring : MonoBehaviour
     void OnTriggerEnter(Collider col) {
         Player p = col.GetComponent<Player>();
         if (p) {
+            if (p.invincibility > 0) return;
             if (particles) Instantiate(particles, transform.position, Quaternion.identity);
             p.rings++;
+            Player.score += 100;
             if (!destroyObject) Destroy(gameObject);
             else Destroy(destroyObject);
         }

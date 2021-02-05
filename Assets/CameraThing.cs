@@ -39,6 +39,7 @@ public class CameraThing : MonoBehaviour
                 yRotation = Mathf.Lerp(yRotation, 0, resetSpeed * Time.deltaTime);
                 xRotation = Mathf.Lerp(xRotation, -26.082f, resetSpeed * Time.deltaTime);
             }
+            if (p.dead) hhh = false;
         }
         if (hhh) {
             yRotation += Input.GetAxis("Camera Horizontal") * Time.deltaTime * rSpeed;
