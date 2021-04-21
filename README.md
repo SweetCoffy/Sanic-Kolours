@@ -1,5 +1,5 @@
 # Sanic Kolours
- A cheap recreation of sonic colors that barely resembles the game
+A poorly made attempt to recreate the modern sonic gameplay (kinda)
  ## Controls
 
 
@@ -7,7 +7,7 @@
 |-----|------|-----
 | Jump / Double Jump / Homing Attack | Spacebar | A/B
 | Bounce Attack | Left Shift | RB
-| Rotate Camera | Arrow Keys (broken) | Right Joystick
+| Rotate Camera | Arrow Keys | Right Joystick
 | Move | WASD | Left Joystick
 | Boost / Air Dash | V | X
-| Color Power / Transform | C | Y
+| Super Transform | C + 50 rings | Y + 50 rings
