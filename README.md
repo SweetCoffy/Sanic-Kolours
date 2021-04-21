@@ -5,7 +5,8 @@ A poorly made attempt to recreate the modern sonic gameplay (kinda)
 
 | Action | Button (Keyboard) | Button (Controller)
 |-----|------|-----
-| Jump / Double Jump / Homing Attack | Spacebar | A/B
+| Jump / Double Jump / Homing Attack | Spacebar | A
+| Light Speed Dash | Left Alt | B
 | Bounce Attack | Left Shift | RB
 | Rotate Camera | Arrow Keys | Right Joystick
 | Move | WASD | Left Joystick
