@@ -78,8 +78,8 @@
  
              fixed4 frag (v2f i) : SV_Target
              {
-                 fixed4 col = i.color;
-                 col.a *= tex2D(_MainTex, i.texcoord).a;
+                 fixed4 col = i.color * tex2D(_MainTex, i.texcoord);
+                 
                  clip (col.a - 0.01);
                  return col;
              }

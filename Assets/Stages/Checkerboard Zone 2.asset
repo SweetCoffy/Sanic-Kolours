@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Checkerboard Zone 2
   m_EditorClassIdentifier: 
   buildIndex: 2
+  stageNumber: 2
   zoneName: Checkerboard Hill Zone
   icon: {fileID: 21300000, guid: da0234446c62f2c4a9b9b22e0676fa96, type: 3}
   fullName: Checkerboard Hill Zone 2
-  act: ACT 2
-  next: {fileID: 11400000, guid: 1c513275087db7243aad9780d9f4ce3d, type: 2}
+  act: Still no hills
+  next: {fileID: 11400000, guid: d7605675294190648a15752a08ece864, type: 2}

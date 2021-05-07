@@ -22,7 +22,7 @@ TagManager:
   - PlayerIgnore
   - Player
   - PlayerIgnore2
-  - 
+  - Player but waterrun
   - 
   - 
   - 
@@ -40,4 +40,10 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: On top lol
+    uniqueID: 1471144933
+    locked: 0
+  - name: On top of on top lol
+    uniqueID: 1293056521
     locked: 0

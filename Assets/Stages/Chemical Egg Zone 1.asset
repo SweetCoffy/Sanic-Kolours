@@ -13,8 +13,9 @@ MonoBehaviour:
   m_Name: Chemical Egg Zone 1
   m_EditorClassIdentifier: 
   buildIndex: 3
+  stageNumber: 4
   zoneName: Chemical Egg Zone
-  icon: {fileID: 0}
+  icon: {fileID: 21300000, guid: 5f2a7b1d1f6c0994c8799c4ef332d8cc, type: 3}
   fullName: Chemical Egg Zone
-  act: Test Act
-  next: {fileID: 11400000, guid: 7cd9df087ecd8664997a9f4c028f4d40, type: 2}
+  act: "There is no eggs\u2122\uFE0F"
+  next: {fileID: 11400000, guid: 87c938e70cbe4584dbe2da637323ce0e, type: 2}

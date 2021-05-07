@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 public class ZoneInfo : MonoBehaviour {
     public string zoneName = "Test Zone";
@@ -9,26 +10,37 @@ public class ZoneInfo : MonoBehaviour {
     public Level level;
     public Level next;
     public float gravityModifier = 1;
-    void Start() {
+    public bool startSuper = false;
+    public int startRings = 0;
+    public bool startWithMaxBoost = true;
+    bool start = true;
+    PlayerStuff s;
+    void Start() {/*Debug.Log("Start");*/
         if (level) {
             zoneName = level.zoneName;
             act = level.act;
             next = level.next;
         }
         current = this;
-        PlayerStuff s = Instantiate(spawnOnStart).GetComponent<PlayerStuff>();
-        s.player.lastCheckpoint = playerSpawn;
-        s.player.transform.position = playerSpawn.position;
-        s.titleCard.nameText.text = zoneName;
-        s.titleCard.actText.text = act;
+        s = Instantiate(spawnOnStart).GetComponent<PlayerStuff>();
     }
-    public void Loading(AsyncOperation ao, Level l) {
-        StartCoroutine(_Loading(ao, l));
+    void LateUpdate() {
+        if (!start) return;
+        PlayerStart();
+        start = false;
+    }
+    public void PlayerStart() {
+        if (startWithMaxBoost) s.player.boost = s.player.maxBoost;
+        s.player.lastCheckpoint = playerSpawn;
+        if (startSuper) s.player.SuperTransform();
+        s.player.rings = startRings;
+        s.player.transform.position = playerSpawn.position;
     }
     public void SlowMotion(float timescale, float duration) {
         StartCoroutine(_SlowMotion(timescale, duration));
     }
     IEnumerator _SlowMotion(float timescale, float duration) {
+        /*
         float timeLeft = duration;
         while (timeLeft > 0) {
             timeLeft -= Time.unscaledDeltaTime;
@@ -36,15 +48,11 @@ public class ZoneInfo : MonoBehaviour {
             yield return null;
         }
         Time.timeScale = 1;
-    }
-    IEnumerator _Loading(AsyncOperation ao, Level l) {
-        while (!ao.isDone) {
-            Debug.Log($"Loading level {l.fullName}: {Mathf.Floor(ao.progress * 100)}%");
-            yield return new WaitForSeconds(0.1f);
-        }
-        Debug.Log($"Level {l.fullName} started");
+        */
+        yield return null;
     }
     public void End() {
         if (next) next.Start();
+        else StageLoader.main.GoToMainMenu();
     }
 }

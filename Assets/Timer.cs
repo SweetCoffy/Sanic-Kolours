@@ -6,7 +6,7 @@ public class Timer : MonoBehaviour {
     public static float minutes = 0;
     public static Timer main;
     public Text timeText;
-    void Start() {
+    void Start() {/*Debug.Log("Start");*/
         if (!main) main = this;
     }
     void Update() {

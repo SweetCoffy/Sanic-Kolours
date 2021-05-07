@@ -11,7 +11,7 @@ public class Wisp {
     public Color barColor = Color.white;
     public float consumeRate = 1;
     public Color outlineColor = Color.white;
-    public virtual void Start() {
+    public virtual void Start() {/*Debug.Log("Start");*/
         player.wispIcon.sprite = icon;
         timeLeft = duration;
         player.barColor = barColor;

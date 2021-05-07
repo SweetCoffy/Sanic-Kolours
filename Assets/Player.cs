@@ -6,14 +6,18 @@ public class Player : MonoBehaviour
 {
     [Header("Totally necessary stuff")]
         public Rigidbody rb;
+        ConstantForce c;
         public Transform floorDetection;
         public Animator anim;
     [Header("Movement")]
         public float speed = 20;
+        public bool weirdAirDash = false;
         public float drag = 5;
         public float jumpForce = 40;
         public float doubleJumpForce = 1;
         [HideInInspector] public bool spring = false;
+        public float globalGravity = -5;
+        public float spinningGravityMultiplier = 5;
         public float minSpeed = 50;        
         public float runningParticlesStart = 40;
         public float speedEffectStart = 30;
@@ -34,12 +38,18 @@ public class Player : MonoBehaviour
         public float superBoostSpeedMultiplier = 2;
         public float multiplier = 3;
         public float maxSpeed = 75;
+        float airDashTimeLeft = 0;
+        public float airDashTime = 1;
+        public float spindashSpeed = 100;
+        public float spindashChargeTime = 5;
+        float spindashCharge = 0;
+        bool spindash = false;
         public bool didJump = false;
         public float Speed {
             get {
                 float m = 1;
                 if (isSuper && !isBoosting) m = superSpeedMultiplier;
-                if (CurrSpeed > minSpeed && isGrounded) return speed * multiplier * m;
+                if (boostMode) return speed * multiplier * m;
                 return speed * m;
             }
         }
@@ -47,6 +57,7 @@ public class Player : MonoBehaviour
         public float maxTimeSinceLastRaycast = 0.15f;
         public float distance = 0.07f;
         public float radius = 0.1f;
+        public float raycastOffset = 0.05f;
         public LayerMask groundMask;
     [Header("UI")]
         public float speedBarMax = 100;
@@ -61,6 +72,9 @@ public class Player : MonoBehaviour
         public Image speedBar;
         public float barPercent = 1;
         public Image boostBarBackground;
+        public ParticleSystem particle1;
+        public ParticleSystem particle2;
+        public ParticleSystem particle3;
         public Image wispBar;
         public Image boostGauge2;
         public Image boostGauge3;
@@ -74,6 +88,7 @@ public class Player : MonoBehaviour
         public Color defaultBarColor;
         public Color barColor;
         public Image ringThing;
+        bool boostMode = false;
         public Sprite placeholderIcon;
         public float CurrSpeed {
             get {
@@ -94,14 +109,13 @@ public class Player : MonoBehaviour
         public float boost {
             get {
                 //if (isSuper) return maxBoost;
-                return Mathf.Clamp(_boost, 0, maxBoost);
+                return Mathf.Clamp(_boost, 0, maxBoost * 3);
             }
             set {
-                if (_boost - value < 0 && !isSuper) wispBar.color = Color.white;
                 _boost = value;
             }
         }
-        float _boost = 0;
+        [SerializeField] float _boost = 0;
         public float boostSpeed = 225;
         public float maxBoostSpeed = 200;
         public bool boostEnabled = true;
@@ -112,6 +126,7 @@ public class Player : MonoBehaviour
         bool jump = false;
     [Header("Fancy effects")]
         public float fovIntensity = 0.5f;
+        public GameObject boostShockwave;
         public float fovSpeed = 10;
         public Renderer boostEffect;
         public Transform boostEffectTransform;
@@ -136,6 +151,7 @@ public class Player : MonoBehaviour
         public bool inputEnabled = true;
         public float homingAttackRadius = 10;
         Vector2 originalPos;
+        Vector2 rOriginalPos;
         public Vector3 facing = Vector3.forward;
         public bool destroyEnemies;
         public Transform target;
@@ -156,12 +172,13 @@ public class Player : MonoBehaviour
         }
         private Transform _target;
         public Wisp currWisp; 
+        bool s = false;
         public LayerMask homingAttackMask;
         public LayerMask lightSpeedDashMask;
         public float twoDModeZ = 0;
         public bool TwoDMode = false;
         public Transform camHolder;
-        private int _rings = 0;
+        [SerializeField] int _rings = 0;
         public bool stomp = false;
         public float lightSpeedDashRange = 4;
         public float homingAttackForce = 50;
@@ -169,6 +186,8 @@ public class Player : MonoBehaviour
         float superStartRings = 0;
         public Color superDefaultBarColor = Color.yellow;
         public Gradient superColorGradient;
+        public Vector3 camForward;
+        public Vector3 camRight;
         public float gradientSpeed = 0.01f;
         public static int score = 0;
         private float fallTime = 0;
@@ -177,7 +196,7 @@ public class Player : MonoBehaviour
         Color co;
         public float Drag {
             get {
-                if (spinning || spring) return 0;
+                if ((spinning && isGrounded) || spring) return 0;
                 if (movement.magnitude > 0) return drag * 0.3f;
                 return drag;
             }
@@ -185,7 +204,7 @@ public class Player : MonoBehaviour
         public bool doingHomingAttack = false;
         public bool BounceOffEnemies {
             get {
-                return doingHomingAttack || spinning;
+                return doingHomingAttack || (spinning && !isGrounded);
             }
         }
         public bool DestroyEnemies {
@@ -197,7 +216,8 @@ public class Player : MonoBehaviour
             get {
                 float m = 1;
                 if (isSuper) m = superMaxSpeedMultiplier;
-                if (isBoosting) return maxBoostSpeed * m;
+                if (isBoosting && isGrounded) return maxBoostSpeed * m;
+                if (spinning && isGrounded) return float.MaxValue;
                 return maxSpeed * m;
             }
         }
@@ -208,16 +228,21 @@ public class Player : MonoBehaviour
             set {
                 float diff = value - _rings;
                 if (diff > 0) {
-                    boost += diff * 5;
+                    for (int i = 0; i < diff; i++) {
+                        if ((boost + 5) >= maxBoost) break;
+                        boost += 5;
+                    }
                 }
                 _rings = value;
                 RingCounter.main.text = value + ""; 
             }
         }
+        float hTime = 0;
         bool doingLightSpeedDash = false;
         public bool isBoosting = false;
         float ringCooldown = 1;
         float timeThing = 0;
+        float rTime = 0;
         public static Player main;
         Vector2 lastMovement = Vector2.zero;
     void UpdateHomingAttackTarget() {
@@ -258,6 +283,7 @@ public class Player : MonoBehaviour
         nearestRing = currTarget.transform;
     }
     IEnumerator WispUpdate() {
+        /**
         CameraThing.main.Shake(0.3f, 0.5f);
         //wispIcon.color = new Color(1, 1, 1, 1);
         Time.timeScale = 0.3f;
@@ -265,26 +291,79 @@ public class Player : MonoBehaviour
         Time.timeScale = 1;
         while (currWisp.timeLeft > 0) {
             currWisp.Update();
-            glowThing.color += new Color(0, 0, 0, 1);
             yield return null;
         }
         //wispIcon.color = new Color(0.9f, 0.9f, 0.9f, 0.9f);
         currWisp.End();
+        **/
+        yield return null;
     }
     IEnumerator OnSuper() {
-        CameraThing.main.Shake(0.3f, 0.5f);
-        Time.timeScale = 0.3f;
-        yield return new WaitForSecondsRealtime(1f);
-        Time.timeScale = 1;
+        if (!s) {
+            s = true;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+            inputEnabled = false;
+            CameraThing.main.Shake(0.5f, 0.7f);
+            float m = 1;
+            while (boost > 0) {
+                boost -= Time.unscaledDeltaTime * boostConsumeRate * 50 * m;
+                invincibility = 1;
+                m += Time.deltaTime * 1.5f;
+                yield return null;
+            }
+            m = 1;
+            CameraThing.main.Shake(0.3f, 0.7f);
+            isSuper = true;
+            while (boost < maxBoost) {
+                boost += Time.unscaledDeltaTime * boostConsumeRate * 50 * m;
+                m += Time.deltaTime * 1.1f;
+                invincibility = 1;
+                yield return null;
+            }
+            inputEnabled = true;
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+            s = false;
+        }
     }
-    void Start() {
+    IEnumerator OnSuperEnd() {
+        if (!s) {
+            s = true;
+            float m = 1;
+            rb.constraints = RigidbodyConstraints.FreezeAll;
+            inputEnabled = false;
+            while (boost > 0) {
+                boost -= Time.unscaledDeltaTime * boostConsumeRate * 50 * m;
+                m += Time.deltaTime * 1.5f;
+                yield return null;
+            }
+            m = 1;
+            CameraThing.main.Shake(0.3f, 0.7f);
+            isSuper = false;
+            while (boost < maxBoost) {
+                boost += Time.unscaledDeltaTime * boostConsumeRate * 50 * m;
+                m += Time.deltaTime * 1.1f;
+                yield return null;
+            }
+            inputEnabled = true;
+            rb.constraints = RigidbodyConstraints.FreezeRotation;
+            s = false;
+        }
+    }
+    public void SuperTransform() {
+        if (isSuper) return;
+        s = false;
+        superStartRings = rings;
+        StartCoroutine(OnSuper());
+    }
+    void Start() {/*Debug.Log("Start");*/
         main = this;
         if (boostBarBackground) co = boostBarBackground.color;
         currWisp = null;
         originalPos = h.anchoredPosition;
+        rOriginalPos = ringsThing.rectTransform.anchoredPosition;
         barColor = defaultBarColor;
         hImage = h.GetComponent<Image>();
-        ConstantForce c = GetComponent<ConstantForce>();
+        c = GetComponent<ConstantForce>();
         c.relativeForce *= ZoneInfo.current.gravityModifier;
         c.force *= ZoneInfo.current.gravityModifier;
     }
@@ -301,26 +380,48 @@ public class Player : MonoBehaviour
         this.currWisp = wisp.Clone();
     }
     void FixedUpdate() {
+        graphics.localScale = Vector3.Lerp(graphics.localScale, Vector3.one, 9 * Time.deltaTime);
+        camForward = CameraThing.main.forward;
+        camRight = CameraThing.main.right;
+        ParticleSystem.EmissionModule e1 = particle1.emission;
+        ParticleSystem.EmissionModule e2 = particle2.emission;
+        ParticleSystem.EmissionModule e3 = particle3.emission;
+        e1.enabled = isBoosting;
+        e2.enabled = isBoosting;
+        e3.enabled = isBoosting;
+        ParticleSystem.MainModule m1 = particle1.main;
+        ParticleSystem.MainModule m2 = particle2.main;
+        ParticleSystem.MainModule m3 = particle3.main;
+        m1.startColor = barColor + new Color(.75f, .75f, .75f, 0);
+        m2.startColor = barColor + new Color(.75f, .75f, .75f, 0);
+        m3.startColor = barColor + new Color(.75f, .75f, .75f, 0);
+        if (spinning && isGrounded) c.force = Vector3.up * globalGravity * spinningGravityMultiplier;
+        else c.force = Vector3.up * globalGravity;
+        if (boostMode) gameObject.layer = 17;
+        else gameObject.layer = 15;
         if (dead) return;
+        if (rb.position.y < -600) Kill();
         RaycastHit hit;
-        bool didHit = Physics.Raycast(transform.position, -transform.up, out hit, distance, groundMask);
+        bool didHit = Physics.Raycast(rb.position + (transform.up * raycastOffset), -transform.up, out hit, distance, groundMask);
         if (didHit) {
-            Debug.DrawRay(transform.position, hit.point - transform.position, Color.green);
+            Debug.DrawRay(rb.position + (transform.up * raycastOffset), hit.point - (rb.position + (transform.up * raycastOffset)), Color.green);
             Quaternion h = Quaternion.FromToRotation(Vector3.up, hit.normal.normalized).normalized;
             Vector3 requiredSpeed = new Vector3(h.x, h.y, h.z) * (surfaceMinSpeed);
-            if (CurrSpeed > requiredSpeed.magnitude) {
-                Quaternion r = Quaternion.Lerp(rb.rotation, h, rotationSpeed * Time.deltaTime);
+            if (CurrSpeed > requiredSpeed.magnitude || boostMode) {
+                //Quaternion r = Quaternion.Lerp(rb.rotation, h, rotationSpeed * Time.deltaTime);
+                Quaternion r = h;
                 rb.rotation = r;
+                secondsSinceLastRaycast = 0;
                 //if (isGrounded && h != Quaternion.identity) rb.MovePosition(hit.point);
-            } else {
-                rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
+            } else if (secondsSinceLastRaycast > maxTimeSinceLastRaycast){
+                //rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
+                rb.rotation = Quaternion.identity;
             }
-            secondsSinceLastRaycast = 0;
         } else if (secondsSinceLastRaycast > maxTimeSinceLastRaycast){
-            Debug.DrawRay(transform.position, -transform.up * distance, Color.red);
-            rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
+            Debug.DrawRay(rb.position + (transform.up * raycastOffset), -transform.up * distance, Color.red);
+            //rb.rotation = Quaternion.Lerp(rb.rotation, Quaternion.identity, rotationSpeed * Time.deltaTime);
+            rb.rotation = Quaternion.identity;
         }
-        if (rb.position.y < -600) Kill();
         Vector3 scaled = rb.velocity;
         scaled.Scale(transform.up);
         if (isGrounded) fallTime = 0;
@@ -338,31 +439,51 @@ public class Player : MonoBehaviour
         if (inputEnabled) {
             if (jump && isGrounded) {
                 rb.AddForce(transform.up * jumpForce, ForceMode.Impulse);
+                graphics.localScale = new Vector3(1.5f, .5f, 1.5f);
                 jump = false;
                 didJump = true;
                 isGrounded = false;
                 spinning = true;
+                airDashTimeLeft = airDashTime;
             }
         }
         if (isGrounded) spring = false;
         Collider[] hhhh = Physics.OverlapSphere(floorDetection.position, radius, groundMask);
         isGrounded = hhhh.Length > 0;
+        Vector3 m = ((camForward * movement.y) + (camRight * movement.x)).normalized;
         if (!(spinning && isGrounded)) {
-            rb.AddRelativeForce(((camHolder.forward * movement.y) + (camHolder.right * movement.x)) * Speed * Time.deltaTime);
-        } 
+            rb.AddRelativeForce(m * Speed * Time.deltaTime);
+        }  else if (spinning && isGrounded) {
+            m.Scale(camRight);
+            rb.AddRelativeForce(m * Speed * 0.5f * Time.deltaTime);
+        }
         var target = rb.velocity;
         target.Scale(transform.up);
         rb.velocity = Vector3.Lerp(rb.velocity, target, Drag * Time.deltaTime);
         secondsSinceLastRaycast += Time.deltaTime;
         if (!isGrounded && stomp && Input.GetButton("Stomp")) {
+            graphics.localScale = new Vector3(.5f, 1.5f, .5f);
+            spinning = true;
             rb.velocity = transform.up * -stompVelocity;
         }
-        if (isGrounded && stomp) {
+        if (CurrSpeed > minSpeed && !doingHomingAttack && !boostMode && !didAirDash && isGrounded) {
+            if (!isSuper) CameraThing.main.Shake(0.3f, 0.4f);
+            else CameraThing.main.Shake(0.3f, 0.6f);
+            if (boostShockwave) {
+                Instantiate(boostShockwave, graphics.position, graphics.rotation);
+            }
+        }
+        boostMode = CurrSpeed > minSpeed && !doingHomingAttack && !didAirDash && isGrounded;
+        if (stomp) {
+            graphics.localScale = new Vector3(.6f, 1.4f, .6f);
+        }
+        if (isGrounded && stomp && !(!isGrounded && isSuper && isBoosting)) {
             stomp = false;
             //inputEnabled = true;
             if (Input.GetButton("Stomp")) {
                 spinning = true;
             } else {
+                graphics.localScale = new Vector3(1.5f, .5f, 1.5f);;
                 float y = Mathf.Clamp(fallTime * bounceMultiplier, bounceMin, bounceMax);
                 Vector3 v = (transform.up * y);
                 rb.velocity = v;
@@ -387,32 +508,50 @@ public class Player : MonoBehaviour
     void Update()
     {
         if (dead) return;
+        if (inputEnabled) {
+            /*Debug.Log("the");*/
+            if (CurrSpeed > 15) {
+                /*Debug.Log("spid");*/
+                bool l = Input.GetButtonDown("Quickstep Left");
+                bool r = Input.GetButtonDown("Quickstep Right");
+                /*Debug.Log($"{l}, {r}");*/
+                if (l) {
+                    rb.MovePosition(rb.position + (graphics.right * -5));
+                    graphics.localScale = new Vector3(4f, 1.1f, 1);
+                    score += 100;
+                }
+                if (r) {
+                    rb.MovePosition(rb.position + (graphics.right * 5));
+                    graphics.localScale = new Vector3(4f, 1.1f, 1);
+                    score += 100;
+                }
+            }
+        }
         ringsThingTime += Time.deltaTime * ringsThingSpeed;
         if (ringsThingTime > 1) ringsThingTime = 0;
         if ((isSuper && rings > 9) || (!isSuper && rings > 0)) ringsThingTime = 0;
         ringsThing.color = ringsThingGradient.Evaluate(ringsThingTime);
         if (invincibility > 0) invincibility -= Time.deltaTime;
         if (attractRings) {
-            attractRings.enabled = isBoosting || isSuper;
+            attractRings.enabled = isBoosting;
         }
         speedBar.fillAmount = CurrSpeed / speedBarMax;
         if (rings > superStartRings) superStartRings = rings;
         if (lastBoostTime < 15) lastBoostTime += Time.deltaTime;
-        if (isSuper) {
-            if (rings <= 0) {
-                isSuper = false;
-                h.anchoredPosition = originalPos;
-            } else {
-                if (ringCooldown > 0) ringCooldown -= Time.deltaTime;
-                if (ringCooldown <= 0) {rings--;ringCooldown = 1;}
-                h.anchoredPosition = originalPos + (new Vector2(Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity), Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity)) / 1.5f);
+        if (isSuper && rings > 0) {
+            if (rb.constraints == RigidbodyConstraints.FreezeRotation) boost = maxBoost;
+            glowThing.color += new Color(0, 0, 0, 1);
+            if (ringCooldown > 0) ringCooldown -= Time.deltaTime;
+            if (ringCooldown <= 0) {rings--;ringCooldown = 1;rTime += .12f;}
+            if (rings <= 0 || Input.GetButtonDown("Wisp Power")) {
+                StartCoroutine(OnSuperEnd());
+                
             }
             timeThing += Time.deltaTime * gradientSpeed;
             if (timeThing > 1) timeThing = 0;
             if (superColorGradient != null) {
                 superDefaultBarColor = superColorGradient.Evaluate(timeThing);
             }
-            if (boost < maxBoost && !isBoosting) boost += ((lastBoostTime / 15) * superBoostRegenRate + (CurrSpeed * superBoostRegenRateBySpeed)) * Time.deltaTime;
         }
         if (anim) AnimationUpdate();
         if (doingHomingAttack) {
@@ -455,24 +594,24 @@ public class Player : MonoBehaviour
             }
         }*/
         UpdateHomingAttackTarget();
-        isBoosting = false;
+        //isBoosting = false;
         boostEffectTransform.LookAt(transform.position + rb.velocity);
         wispBar.color = Color.Lerp(wispBar.color, barColor, 10 * Time.deltaTime);
         float barTarget = barPercent;
         float barValue = fillAmount;
         if (float.IsNaN(barValue)) barValue = 0;
         if (float.IsNaN(barTarget)) barTarget = 0;
-        fillAmount = Mathf.Lerp(barValue, barTarget, 10 * Time.deltaTime);
+        fillAmount = Mathf.Lerp(barValue, barTarget, 50 * Time.deltaTime);
         if (boostBarBackground)boostBarBackground.color = co * wispBar.color;
         wispBar.fillAmount = fillAmount;
         boostGauge2.fillAmount = fillAmount - 1;
         boostGauge3.fillAmount = fillAmount - 2;
-        boostThing.localPosition = (Vector3)new Vector2(fillAmount * wispBarRect.sizeDelta.x, 0);
+        boostThing.localPosition = (Vector3)new Vector2((fillAmount % 1.01f) * wispBarRect.sizeDelta.x, 0);
         //if (TwoDMode) rb.constraints = RigidbodyConstraints.FreezePositionZ | RigidbodyConstraints.FreezeRotation;
         //else rb.constraints = RigidbodyConstraints.FreezeRotation;
         if (movement.magnitude > 0.1f) {
-            facing = transform.TransformDirection((camHolder.forward * movement.y) + (camHolder.right * movement.x));
-            facingRelative = (camHolder.forward * movement.y) + (camHolder.right * movement.x);
+            facing = transform.TransformDirection((camForward * movement.y) + (camRight * movement.x));
+            facingRelative = (camForward * movement.y) + (camRight * movement.x);
         }
         Debug.DrawRay(transform.position, facing * 7);
         Debug.DrawRay(transform.position, facingRelative * 7, Color.gray);
@@ -508,13 +647,14 @@ public class Player : MonoBehaviour
             if (isSuper) barColor = superDefaultBarColor;
         }
         if (inputEnabled) {
-            if (Input.GetButtonDown("Stomp") && !isGrounded && !stomp) {
+            if (Input.GetButtonDown("Stomp") && !isGrounded && !stomp && !(!isGrounded && isSuper && isBoosting)) {
                 //inputEnabled = false;
                 rb.velocity = -transform.up * stompVelocity + (rb.velocity / 1.4f);
+                graphics.localScale = new Vector3(.5f, 1.5f, .5f);
                 stomp = true;
                 spinning = true;
             }
-            movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
+            movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")).normalized;
             if (movement.magnitude > 0.1f) lastMovement = movement.normalized;
             jump = Input.GetButtonDown("Jump");
             //if (!homingAttackTarget) doingHomingAttack = false;
@@ -523,8 +663,8 @@ public class Player : MonoBehaviour
                 doingHomingAttack = false;
                 didAirDash = false;
                 didDoubleJump = false;
-                if ( rb.velocity.y <= 0f && !Input.GetButton("Stomp")) spinning = false;
-                else if (Input.GetButton("Stomp")) {
+                if (!Input.GetButton("Stomp")) spinning = false;
+                if (Input.GetButton("Stomp")) {
                     if (CurrSpeed > 2) spinning = true;
                     else spinning = false;
                 }
@@ -539,65 +679,128 @@ public class Player : MonoBehaviour
                     //Vector3 veloc = dir * homingAttackForce;
                     //rb.velocity = veloc;
                 } else if (!didDoubleJump) {
-                    rb.AddForce(transform.up * doubleJumpForce, ForceMode.Impulse);
+                    Vector3 vel = rb.velocity;
+                    vel.y = doubleJumpForce;
+                    didJump = true;
+                    spinning = true;
+                    didAirDash = false;
+                    stomp = false;
+                    rb.velocity = vel;
+                    graphics.localScale = new Vector3(1.5f, .5f, 1.5f);
                     doingHomingAttack = false;
                     didDoubleJump = true;
                 }
 
                   
             } 
-            if (Input.GetButton("Boost") && boostEnabled) {
-                if (movement.magnitude != 0 && boost > 0) {
-                    float m = 1;
-                    if (isSuper) m = superBoostSpeedMultiplier;
-                    Vector3 hh = Vector3.zero;
-                    isBoosting = true;
-                    lastBoostTime = 0;
-                    outlineThing.color = Color.white;
-                    Vector3 scaledVelocity = rb.velocity;
-                    scaledVelocity.Scale(transform.right + transform.forward);
-                    rb.AddRelativeForce(((camHolder.forward * movement.y) + (camHolder.right * movement.x)) * boostSpeed * Time.deltaTime * m, ForceMode.Acceleration);
-                    boostThing.sizeDelta = new Vector2(3, 25);
-                    glowThing.color += new Color(0, 0, 0, 1);
-                    h.anchoredPosition = originalPos + (new Vector2(Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity), Random.Range(-Wisps.main.shakeIntensity, Wisps.main.shakeIntensity)) / 2);
-                    if (boost > maxBoost) boost -= Time.deltaTime * boostConsumeRate * 2;
-                    else boost -= Time.deltaTime * boostConsumeRate;
-                    
-                } else {
-                    h.anchoredPosition = originalPos;
-                }
+            if (isBoosting && isSuper && !isGrounded) {
+                c.force = Vector3.zero;
+                spinning = false;
+                Vector3 veloc = rb.velocity;
+                veloc.Scale(transform.right + transform.forward);
+                if (Input.GetButton("Jump")) rb.velocity = veloc + (transform.up * jumpForce * 4);
+                if (Input.GetButton("Stomp")) rb.velocity = veloc - (transform.up * jumpForce * 4);
+            }
+            if (Input.GetButtonDown("Boost") && boost <= 0) {
+                hTime = .2f;
+            }
+            if (hTime > 0) {
+                hTime -= Time.deltaTime;
+                float i = Settings.main.shakeIntensity;
+                h.anchoredPosition = originalPos + new Vector2(Random.Range(-i, i), Random.Range(-i, i));
             } else {
                 h.anchoredPosition = originalPos;
             }
-            if (Input.GetButtonDown("Boost") && boostEnabled) {
-                if (boost > 0) {
+            if (rTime > 0) {
+                rTime -= Time.deltaTime;
+                float i = Settings.main.ringsShakeIntensity;
+                ringsThing.rectTransform.anchoredPosition = rOriginalPos + new Vector2(Random.Range(-i, i), Random.Range(-i, i));
+            } else {
+                ringsThing.rectTransform.anchoredPosition = rOriginalPos;
+            }
+            if (Input.GetButton("Boost") && boostEnabled) {
+                if (lastMovement.magnitude != 0 && boost > 0 && CurrSpeed >= minSpeed / 2 && isBoosting) {
+                    float m = 1;
+                    if (isSuper) m = superBoostSpeedMultiplier;
                     Vector3 hh = Vector3.zero;
-                    if (isSuper) rings--;
-                    isBoosting = true;
+                    lastBoostTime = 0;
+                    if (Input.GetKey(KeyCode.F)) {
+                        boost -= Time.unscaledDeltaTime * (boostConsumeRate);
+                        Time.timeScale = .2f;
+                    } else Time.timeScale = 1;
                     outlineThing.color = Color.white;
                     Vector3 scaledVelocity = rb.velocity;
                     scaledVelocity.Scale(transform.right + transform.forward);
-                    rb.AddRelativeForce(((camHolder.forward * movement.y) + (camHolder.right * movement.x)) * boostSpeed * Time.deltaTime, ForceMode.VelocityChange);
-                    boost = Mathf.Clamp(boost - 12.5f, 0, maxBoost * 3);
-                    CameraThing.main.Shake(0.5f, 1f);
+                    Vector2 mo = ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)).normalized;
+                    if (isSuper) ringCooldown -= Time.deltaTime;
+                    if (isGrounded || isSuper) rb.AddRelativeForce(mo * boostSpeed * Time.deltaTime * m, ForceMode.Acceleration);
+                    boostThing.sizeDelta = new Vector2(3, 25);
+                    if (boost > maxBoost) boost -= Time.deltaTime * boostConsumeRate * 2;
+                    else boost -= Time.deltaTime * boostConsumeRate;
+                    /*Debug.Log("Hold");*/
+                } else {
+                    
+                    isBoosting = false;
+                    Time.timeScale = 1;
+                }
+            } else {
+                
+                isBoosting = false;
+                Time.timeScale = 1;
+            }
+            if (Input.GetButtonDown("Wisp Power") && rings < 50) {
+                rTime = 0.2f;
+            }
+            if (Input.GetButtonDown("Boost") && boostEnabled && !isBoosting) {
+                if (boost > 0) {
+                    Vector3 hh = Vector3.zero;
+                    if (isSuper) {
+                        rings--;
+                        rTime = .1f;
+                    }
+                    if (!isSuper) ZoneInfo.current.SlowMotion(0.5f, 0.2f);
+                    else ZoneInfo.current.SlowMotion(0.1f, 0.4f);
+                    isBoosting = true;
+                    if (boostShockwave) {
+                        Instantiate(boostShockwave, graphics.position, graphics.rotation);
+                    }
+                    outlineThing.color = Color.white;
+                    Vector3 scaledVelocity = rb.velocity;
+                    scaledVelocity.Scale(transform.right + transform.forward);
+                    Vector3 mo = ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)).normalized;
+                    rb.AddRelativeForce(mo * boostSpeed / 4, ForceMode.VelocityChange);
+                    Camera.main.fieldOfView += 30;
+                    boost -= 12.5f;
+                    //CameraThing.main.Shake(0.5f, 1f);
+                    /*Debug.Log("press");*/
                 }
             } 
             if (Input.GetButtonDown("Boost") && !didAirDash && !isGrounded) {
                 Vector3 scaled = rb.velocity;
                 scaled.Scale(transform.right + transform.forward);
+                if (boost > 0) {
+                    scaled.y += 50;
+                }
                 rb.velocity = scaled;
-                rb.AddRelativeForce(((camHolder.forward * lastMovement.normalized.y) + (camHolder.right * lastMovement.normalized.x)) * airDashForce, ForceMode.Impulse);
+                Vector3 mov = ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)).normalized;
+                rb.AddRelativeForce(mov * airDashForce, ForceMode.Impulse);
                 didAirDash = true;
+                stomp = false;
                 spinning = false;
             }
+            if (didAirDash && airDashTimeLeft > 0 && !isGrounded && weirdAirDash) {
+                airDashTimeLeft -= Time.deltaTime;
+                spinning = false;
+                rb.velocity = Vector3.Slerp(rb.velocity, ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)) * airDashForce, 6 * Time.deltaTime);
+                //boostMode = true;
+            }
+            if (!weirdAirDash) airDashTimeLeft = 0;
             if (Input.GetButtonDown("Wisp Power") && !isSuper) {
                 var h = !wispsEnabled;
                 if (currWisp == null) h = true;
                 if (currWisp != null && currWisp.beingUsed && currWisp.timeLeft <= 0) h = true;
                 if (h && rings >= 50) {
-                    isSuper = true;
-                    superStartRings = rings;
-                    StartCoroutine(OnSuper());
+                    SuperTransform();
                 }
             }
             if (currWisp != null && Input.GetButtonDown("Wisp Power") && wispsEnabled) {
@@ -613,7 +816,7 @@ public class Player : MonoBehaviour
         }
         if (doingHomingAttack) spinning = true;
         if (trail) {
-            trail.emitting = isBoosting || doingHomingAttack || stomp || didAirDash || spinning || CurrSpeed > minSpeed;
+            trail.emitting = isBoosting || doingHomingAttack || stomp || didAirDash || spinning || boostMode;
         }
         if (runningParticles) {
             var e = runningParticles.emission;
@@ -629,7 +832,7 @@ public class Player : MonoBehaviour
         boostThing.sizeDelta *= new Vector2(1, 0.8f);
         glowThing.color -= new Color(0, 0, 0, 2 * Time.deltaTime);
         boostEffect.gameObject.SetActive(isBoosting);
-        if (boost > maxBoost) boost = maxBoost;
+        //if (boost > maxBoost) boost = maxBoost;
     } 
     public void TakeDamage(Vector3 knockback) {
         if (dead) return;
@@ -639,15 +842,16 @@ public class Player : MonoBehaviour
             Kill();
             return;
         }
-        var droppedRings = rings;
+        var droppedRings = Mathf.Clamp(rings, 0, 30);
         var angle = 360 / droppedRings;
         for (var i = 0; i < droppedRings; i++) {
             Rigidbody r = Instantiate(droppedRing, transform.position, Quaternion.identity).GetComponent<Rigidbody>();
-            r.angularVelocity = new Vector3(Random.Range(-60, 60), Random.Range(-60, 60), Random.Range(-60, 60));
+            r.angularVelocity = new Vector3(Random.Range(-15, 15), Random.Range(-15, 15), Random.Range(-15, 15));
             r.velocity = (Quaternion.Euler(0, i * angle, 0) * Vector3.forward) * 7 + (Vector3.up * 25);
         }
         rings = 0;
         invincibility = 0.7f;
+        rTime = .7f;
     }
     public void Kill() {
         if (dead) return;
@@ -656,6 +860,8 @@ public class Player : MonoBehaviour
         boost = 0;
         currWisp = null;
         StartCoroutine(_Kill());
+        isSuper = false;
+        AnimationUpdate();
     }
     IEnumerator _Kill() {
         //GetComponent<Collider>().enabled = false;
@@ -666,16 +872,7 @@ public class Player : MonoBehaviour
         rb.constraints = RigidbodyConstraints.None;
         inputEnabled = false;
         yield return new WaitForSeconds(2.7f);
-        GetComponent<ConstantForce>().enabled = true;
-        rb.useGravity = false;
-        rb.rotation = Quaternion.identity;
-        rb.constraints = RigidbodyConstraints.FreezeRotation;
-        inputEnabled = true;
-        //GetComponent<Collider>().enabled = true;
-        dead = false;
-        rb.velocity = Vector3.zero;
-        rb.position = lastCheckpoint.position;
-        invincibility = 1;
+        StageLoader.main.RestartStage();
     }
     void OnDrawGizmos() {
         Gizmos.DrawWireSphere(transform.position, homingAttackRadius);

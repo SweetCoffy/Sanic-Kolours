@@ -2,7 +2,7 @@ using UnityEngine;
 [System.Serializable]
 public class CubeWisp : Wisp {
     private bool h = false;
-    public override void Start() {
+    public override void Start() {/*Debug.Log("Start");*/
         base.Start();
         //Game.cubeEnabled = !Game.cubeEnabled;
         player.rb.velocity = Vector3.down * 75;

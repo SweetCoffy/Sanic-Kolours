@@ -2,7 +2,7 @@ using UnityEngine;
 using System.Collections;
 public class Enemy : MonoBehaviour {
     public float health = 1;
-    private float startHealth;
+    public float startHealth;
     public GameObject destroyEffect;
     public bool respawn = true;
     Vector3 originalPos;
@@ -13,11 +13,11 @@ public class Enemy : MonoBehaviour {
     public float parentDamageMultiplier = 1;
     bool respawning = false;
     float invincibility = 1;
-    void Start() {
+    protected virtual void Start() {/*Debug.Log("Start");*/
         startHealth = health;
         originalPos = transform.position;
     }
-    void Update() {
+    protected virtual void Update() {
         if (transform.position.y < -600) {
             transform.position = originalPos;
             health = startHealth;
@@ -28,9 +28,9 @@ public class Enemy : MonoBehaviour {
         if (invincibility > 0) return;
         Player p = col.gameObject.GetComponent<Player>();
         if (p) {
-            Debug.Log("h");
+            /*Debug.Log("h");*/
             if (p.DestroyEnemies) {
-                if (p.doingHomingAttack) p.rb.velocity = (p.rb.velocity.magnitude / 1.7f) * p.transform.up;
+                if (p.doingHomingAttack) p.rb.velocity = (p.rb.velocity.magnitude / 6f) * p.transform.up;
                 else if (p.BounceOffEnemies) p.rb.velocity = -p.rb.velocity / 1.8f;
                 float damage = 1;
                 if (p.stomp) damage += p.stompDamage;
@@ -47,9 +47,9 @@ public class Enemy : MonoBehaviour {
         if (invincibility > 0) return;
         Player p = col.gameObject.GetComponent<Player>();
         if (p) {
-            Debug.Log("h");
+            /*Debug.Log("h");*/
             if (p.DestroyEnemies) {
-                if (p.doingHomingAttack) p.rb.velocity = (p.rb.velocity.magnitude / 1.7f) * p.transform.up;
+                if (p.doingHomingAttack) p.rb.velocity = (p.rb.velocity.magnitude / 6f) * p.transform.up;
                 else if (p.BounceOffEnemies) p.rb.velocity = -p.rb.velocity / 1.8f;
                 float damage = 1;
                 if (p.stomp) damage += p.stompDamage;
@@ -83,7 +83,7 @@ public class Enemy : MonoBehaviour {
         if (invincibility > 0) return;
         invincibility = 0.5f;
         health -= damage;
-        Debug.Log("oof");
+        /*Debug.Log("oof");*/
         SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
         if (transform.parent) {
             Enemy e = transform.parent.GetComponent<Enemy>();
@@ -105,11 +105,11 @@ public class Enemy : MonoBehaviour {
                     }
                 }
                 SendMessage("OnDie", p, SendMessageOptions.DontRequireReceiver);
-                if (p.boost < p.maxBoost) p.boost += boostDrop;
+                p.boost += boostDrop;
                 StartCoroutine(Respawn());
             } else {
                 SendMessage("OnDie", p, SendMessageOptions.DontRequireReceiver);
-                if (p.boost < p.maxBoost) p.boost += boostDrop;
+                p.boost += boostDrop;
                 Destroy(gameObject);
             }
         }

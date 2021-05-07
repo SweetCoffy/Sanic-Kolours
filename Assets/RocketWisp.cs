@@ -2,7 +2,7 @@ using UnityEngine;
 [System.Serializable]
 public class RocketWisp : Wisp {
     public float maxSpeed = 50;
-    public override void Start() {
+    public override void Start() {/*Debug.Log("Start");*/
         base.Start();
         player.inputEnabled = false;
         player.destroyEnemies = true;

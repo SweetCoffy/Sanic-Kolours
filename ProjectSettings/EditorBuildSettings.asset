@@ -20,4 +20,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Bob-Omb Battlefield.unity
     guid: 3e58584ec0f91ff4e8dc31bc9cd19282
+  - enabled: 1
+    path: Assets/Scenes/TEZ 1.unity
+    guid: 639167f5f2f2f114488b20ea62c030bd
+  - enabled: 1
+    path: Assets/Scenes/CHZ 3.unity
+    guid: ae973aecbf61abf4c8cb5d7f17363b8d
   m_configObjects: {}

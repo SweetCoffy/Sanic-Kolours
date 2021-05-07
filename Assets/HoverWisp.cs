@@ -3,7 +3,7 @@ using UnityEngine;
 public class HoverWisp : Wisp {
     public float speed = 250;
     public float hoverForce = 250;
-    public override void Start() {
+    public override void Start() {/*Debug.Log("Start");*/
         base.Start();
         player.inputEnabled = false;
         player.GetComponent<ConstantForce>().relativeForce *= 0.25f;
@@ -14,7 +14,7 @@ public class HoverWisp : Wisp {
             player.rb.AddForce(Vector3.up * hoverForce * Time.deltaTime);
             timeLeft -= Time.deltaTime;
         }
-        player.rb.AddRelativeForce((player.camHolder.forward * Input.GetAxis("Vertical") * speed * Time.deltaTime) + (player.camHolder.right * Input.GetAxis("Horizontal") * speed * Time.deltaTime));
+        player.rb.AddRelativeForce((player.camForward * Input.GetAxis("Vertical") * speed * Time.deltaTime) + (player.camRight * Input.GetAxis("Horizontal") * speed * Time.deltaTime));
     }
     public override void End() {
         base.End();

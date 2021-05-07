@@ -4444,7 +4444,7 @@ GameObject:
   - component: {fileID: 5932755210997066790}
   - component: {fileID: 5932755210997066784}
   - component: {fileID: 5932755210997066791}
-  m_Layer: 0
+  m_Layer: 11
   m_Name: Thing
   m_TagString: Untagged
   m_Icon: {fileID: 0}

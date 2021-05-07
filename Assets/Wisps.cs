@@ -6,7 +6,7 @@ public class Wisps : MonoBehaviour{
     public SlowmoWisp slowmo;
     public float shakeIntensity = 0.1f;
     public static Wisps main;
-    void Start() {
+    void Start() {/*Debug.Log("Start");*/
         main = this;
     }
 }

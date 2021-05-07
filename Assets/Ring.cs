@@ -11,7 +11,7 @@ public class Ring : MonoBehaviour
     void OnTriggerEnter(Collider col) {
         Player p = col.GetComponent<Player>();
         if (p) {
-            if (p.invincibility > 0) return;
+            if (p.invincibility > 0.25f) return;
             if (particles) Instantiate(particles, transform.position, Quaternion.identity);
             p.rings++;
             Player.score += 100;
@@ -21,7 +21,7 @@ public class Ring : MonoBehaviour
     }
     void FixedUpdate() {
         if (!followTransform) return;
-        if (!destroyObject) transform.position = Vector3.Lerp(transform.position, followTransform.position, speed * Time.deltaTime);
-        else destroyObject.transform.position = Vector3.Lerp(destroyObject.transform.position, followTransform.position, speed * Time.deltaTime);
+        if (!destroyObject) transform.position = Vector3.Slerp(transform.position, followTransform.position, speed * Time.deltaTime);
+        else destroyObject.transform.position = Vector3.Slerp(destroyObject.transform.position, followTransform.position, speed * Time.deltaTime);
     }
 }

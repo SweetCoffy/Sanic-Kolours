@@ -1,7 +1,7 @@
 using UnityEngine;
 public class WispBox : MonoBehaviour {
     public enum WispThings {
-        Cube, Rocket, Hover, Boost, Slowmo
+        Cube, Rocket, Hover, Boost, Slowmo, Rings
     }
     public WispThings wisp = WispThings.Hover;
     Wisp w;
@@ -21,6 +21,10 @@ public class WispBox : MonoBehaviour {
             if (p.boost >= p.maxBoost) p.boost = p.maxBoost;
             return;
         }
+        if (wisp == WispThings.Rings) {
+            p.rings += 10;
+        }
+        if (w == null) return;
         p.ChangeWisp(w);  
     }
     /*
