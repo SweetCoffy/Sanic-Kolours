@@ -39,11 +39,17 @@ public class CameraThing : MonoBehaviour
     public Vector3 right;
     public Vector3 forward;
     public bool shouldRotate = true;
+    public float freecamSpeed = 10;
     public bool rotate = true;
+    public bool freecam = false;
+    Vector3 xPos;
+    Vector3 yPos;
     void Start() {/*Debug.Log("Start");*/
         main = this;
         yRotation = transform.localEulerAngles.y;
         p = target.GetComponent<Player>();
+        xPos = xAxis.localPosition;
+        yPos = yAxis.localPosition;
     }
     void UpdateCamera() {
         if (Input.GetMouseButtonDown(0)) {
@@ -55,12 +61,11 @@ public class CameraThing : MonoBehaviour
         }
         bool hhh = true;
         if (p) {
-            if (p.TwoDMode) {
+            if (p.TwoDMode && !p.dead) {
                 hhh = false;
                 yRotation = Mathf.Lerp(yRotation, 0, resetSpeed * Time.deltaTime);
                 xRotation = Mathf.Lerp(xRotation, -26.082f, resetSpeed * Time.deltaTime);
             }
-            if (p.dead) hhh = false;
         }
         if (updateDirections) {
             forward = transform.forward;
@@ -92,9 +97,25 @@ public class CameraThing : MonoBehaviour
             transform.localRotation = _r;
             if (yAxis) yAxis.localRotation = _r;
         }
-        if (move) {
+        if (move && !freecam) {
             transform.position = targetPos;
             yetAnotherAxis.position = transform.position;
+        } 
+        if (freecam) {
+            Vector3 mov = new Vector3(Input.GetAxisRaw("Horizontal"), 0, Input.GetAxisRaw("Vertical"));
+            if (Input.GetButton("Jump")) {
+                mov.y += 1;
+            } else if (Input.GetButton("Boost")) {
+                mov.y -= 1;
+            }
+            Camera.main.transform.localPosition = Vector3.zero;
+            yAxis.localPosition = Vector3.zero;
+            xAxis.localPosition = Vector3.zero;
+            transform.position += ((Camera.main.transform.forward * mov.z) + (Camera.main.transform.right * mov.x) + (Vector3.up * mov.y)) * Time.deltaTime * freecamSpeed;
+            yetAnotherAxis.position = transform.position;
+        } else {
+            yAxis.localPosition = yPos;
+            xAxis.localPosition = xPos;
         }
     }
     void FixedUpdate()

@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   buildIndex: 0
   stageNumber: -1
-  zoneName: Main Menu
+  zoneName: Sanic Kolours
   icon: {fileID: 0}
   fullName: Main Menu
-  act: 
+  act: Title Screen
   next: {fileID: 0}

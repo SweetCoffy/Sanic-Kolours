@@ -349,8 +349,12 @@ public class Player : MonoBehaviour
             s = false;
         }
     }
-    public void SuperTransform() {
+    public void SuperTransform(bool force = false) {
         if (isSuper) return;
+        if (!Game.superEnabled && !force) {
+            rTime = .3f;
+            return;
+        };
         s = false;
         superStartRings = rings;
         StartCoroutine(OnSuper());
@@ -363,6 +367,8 @@ public class Player : MonoBehaviour
         rOriginalPos = ringsThing.rectTransform.anchoredPosition;
         barColor = defaultBarColor;
         hImage = h.GetComponent<Image>();
+        gfxStartPos = graphics.localPosition;
+        trailOffset = trail.transform.localPosition - gfxStartPos;
         c = GetComponent<ConstantForce>();
         c.relativeForce *= ZoneInfo.current.gravityModifier;
         c.force *= ZoneInfo.current.gravityModifier;
@@ -379,8 +385,49 @@ public class Player : MonoBehaviour
         
         this.currWisp = wisp.Clone();
     }
+    Vector3 gfxStartPos;
+    Vector3 trailOffset;
     void FixedUpdate() {
+        if (isGrounded) {
+            ControlsThing.main["jump"] = true;
+            ControlsThing.main["boost"] = true;
+            ControlsThing.main["doublejump"] = false;
+            ControlsThing.main["airdash"] = false;
+            ControlsThing.main["airboost"] = false;
+            ControlsThing.main["bounce"] = false;
+            ControlsThing.main["stomp"] = false;
+        } else {
+            ControlsThing.main["boost"] = false;
+            ControlsThing.main["jump"] = false;
+            if (!stomp) {
+                ControlsThing.main["bounce"] = true;
+                ControlsThing.main["stomp"] = false;
+            }
+            else {
+                ControlsThing.main["bounce"] = false;
+                ControlsThing.main["stomp"] = true;
+            }
+            if (!didAirDash) {
+                if (boost > 0) {
+                    ControlsThing.main["airdash"] = false;
+                    ControlsThing.main["airboost"] = true;
+                } else {
+                    ControlsThing.main["airdash"] = true;
+                    ControlsThing.main["airboost"] = false;
+                }
+            } else {
+                ControlsThing.main["airdash"] = false;
+                ControlsThing.main["airboost"] = false;
+            }
+            if (!didDoubleJump) {
+                ControlsThing.main["doublejump"] = true;
+            } else {
+                ControlsThing.main["doublejump"] = false;
+            }
+        }
         graphics.localScale = Vector3.Lerp(graphics.localScale, Vector3.one, 9 * Time.deltaTime);
+        graphics.localPosition = Vector3.Lerp(graphics.localPosition, gfxStartPos, 13 * Time.deltaTime);
+        trail.transform.localPosition = graphics.localPosition + trailOffset;
         camForward = CameraThing.main.forward;
         camRight = CameraThing.main.right;
         ParticleSystem.EmissionModule e1 = particle1.emission;
@@ -407,7 +454,7 @@ public class Player : MonoBehaviour
             Debug.DrawRay(rb.position + (transform.up * raycastOffset), hit.point - (rb.position + (transform.up * raycastOffset)), Color.green);
             Quaternion h = Quaternion.FromToRotation(Vector3.up, hit.normal.normalized).normalized;
             Vector3 requiredSpeed = new Vector3(h.x, h.y, h.z) * (surfaceMinSpeed);
-            if (CurrSpeed > requiredSpeed.magnitude || boostMode) {
+            if (CurrSpeed > requiredSpeed.magnitude || boostMode || (requiredSpeed / surfaceMinSpeed).magnitude < .2f) {
                 //Quaternion r = Quaternion.Lerp(rb.rotation, h, rotationSpeed * Time.deltaTime);
                 Quaternion r = h;
                 rb.rotation = r;
@@ -426,7 +473,7 @@ public class Player : MonoBehaviour
         scaled.Scale(transform.up);
         if (isGrounded) fallTime = 0;
         if (!isGrounded && rb.velocity.y < 0) fallTime -= (scaled.x + scaled.y + scaled.z) * Time.deltaTime;
-        rb.velocity = new Vector3(Mathf.Clamp(rb.velocity.x, -MaxSpeed, MaxSpeed), rb.velocity.y, Mathf.Clamp(rb.velocity.z, -MaxSpeed, MaxSpeed));
+        rb.velocity = new Vector3(Mathf.Clamp(rb.velocity.x, -MaxSpeed, MaxSpeed), Mathf.Clamp(rb.velocity.y, -MaxSpeed, MaxSpeed), Mathf.Clamp(rb.velocity.z, -MaxSpeed, MaxSpeed));
         if (TwoDMode) {
             Vector3 veloc = rb.velocity;
             veloc.Scale(Vector3.right + Vector3.up);
@@ -446,6 +493,11 @@ public class Player : MonoBehaviour
                 spinning = true;
                 airDashTimeLeft = airDashTime;
             }
+            if (!isGrounded && stomp && Input.GetButton("Stomp")) {
+                graphics.localScale = new Vector3(.5f, 1.5f, .5f);
+                spinning = true;
+                rb.velocity = transform.up * -stompVelocity;
+            }
         }
         if (isGrounded) spring = false;
         Collider[] hhhh = Physics.OverlapSphere(floorDetection.position, radius, groundMask);
@@ -461,11 +513,6 @@ public class Player : MonoBehaviour
         target.Scale(transform.up);
         rb.velocity = Vector3.Lerp(rb.velocity, target, Drag * Time.deltaTime);
         secondsSinceLastRaycast += Time.deltaTime;
-        if (!isGrounded && stomp && Input.GetButton("Stomp")) {
-            graphics.localScale = new Vector3(.5f, 1.5f, .5f);
-            spinning = true;
-            rb.velocity = transform.up * -stompVelocity;
-        }
         if (CurrSpeed > minSpeed && !doingHomingAttack && !boostMode && !didAirDash && isGrounded) {
             if (!isSuper) CameraThing.main.Shake(0.3f, 0.4f);
             else CameraThing.main.Shake(0.3f, 0.6f);
@@ -517,12 +564,12 @@ public class Player : MonoBehaviour
                 /*Debug.Log($"{l}, {r}");*/
                 if (l) {
                     rb.MovePosition(rb.position + (graphics.right * -5));
-                    graphics.localScale = new Vector3(4f, 1.1f, 1);
+                    graphics.localPosition += graphics.right * 5;
                     score += 100;
                 }
                 if (r) {
                     rb.MovePosition(rb.position + (graphics.right * 5));
-                    graphics.localScale = new Vector3(4f, 1.1f, 1);
+                    graphics.localPosition -= graphics.right * 5;
                     score += 100;
                 }
             }
@@ -542,7 +589,7 @@ public class Player : MonoBehaviour
             if (rb.constraints == RigidbodyConstraints.FreezeRotation) boost = maxBoost;
             glowThing.color += new Color(0, 0, 0, 1);
             if (ringCooldown > 0) ringCooldown -= Time.deltaTime;
-            if (ringCooldown <= 0) {rings--;ringCooldown = 1;rTime += .12f;}
+            if (ringCooldown <= 0) {rings--;ringCooldown = 1;}
             if (rings <= 0 || Input.GetButtonDown("Wisp Power")) {
                 StartCoroutine(OnSuperEnd());
                 
@@ -695,13 +742,16 @@ public class Player : MonoBehaviour
             } 
             if (isBoosting && isSuper && !isGrounded) {
                 c.force = Vector3.zero;
-                spinning = false;
-                Vector3 veloc = rb.velocity;
-                veloc.Scale(transform.right + transform.forward);
-                if (Input.GetButton("Jump")) rb.velocity = veloc + (transform.up * jumpForce * 4);
-                if (Input.GetButton("Stomp")) rb.velocity = veloc - (transform.up * jumpForce * 4);
+                Vector3 v = rb.velocity;
+                if (v.y < 0) v.Scale(Vector3.forward + Vector3.right);
+                rb.velocity = v;
+                ringCooldown -= Time.deltaTime * .5f;
             }
-            if (Input.GetButtonDown("Boost") && boost <= 0) {
+            if (isSuper) {
+                didAirDash = false;
+                didDoubleJump = false;
+            }
+            if (Input.GetButtonDown("Boost") && (boost <= 0 || (!isGrounded && didAirDash))) {
                 hTime = .2f;
             }
             if (hTime > 0) {
@@ -751,12 +801,13 @@ public class Player : MonoBehaviour
             if (Input.GetButtonDown("Wisp Power") && rings < 50) {
                 rTime = 0.2f;
             }
-            if (Input.GetButtonDown("Boost") && boostEnabled && !isBoosting) {
+            if (Input.GetButtonDown("Boost") && boostEnabled && !isBoosting && (isGrounded ? true : !didAirDash)) {
                 if (boost > 0) {
                     Vector3 hh = Vector3.zero;
                     if (isSuper) {
+                        rTime = .7f;
+                        hTime = .8f;
                         rings--;
-                        rTime = .1f;
                     }
                     if (!isSuper) ZoneInfo.current.SlowMotion(0.5f, 0.2f);
                     else ZoneInfo.current.SlowMotion(0.1f, 0.4f);
@@ -768,7 +819,7 @@ public class Player : MonoBehaviour
                     Vector3 scaledVelocity = rb.velocity;
                     scaledVelocity.Scale(transform.right + transform.forward);
                     Vector3 mo = ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)).normalized;
-                    rb.AddRelativeForce(mo * boostSpeed / 4, ForceMode.VelocityChange);
+                    rb.AddRelativeForce(mo * boostSpeed / 5, ForceMode.VelocityChange);
                     Camera.main.fieldOfView += 30;
                     boost -= 12.5f;
                     //CameraThing.main.Shake(0.5f, 1f);
@@ -779,7 +830,7 @@ public class Player : MonoBehaviour
                 Vector3 scaled = rb.velocity;
                 scaled.Scale(transform.right + transform.forward);
                 if (boost > 0) {
-                    scaled.y += 50;
+                    scaled.y += 15;
                 }
                 rb.velocity = scaled;
                 Vector3 mov = ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)).normalized;
@@ -834,6 +885,10 @@ public class Player : MonoBehaviour
         boostEffect.gameObject.SetActive(isBoosting);
         //if (boost > maxBoost) boost = maxBoost;
     } 
+    [ContextMenu("Take damage")]
+    public void TakeDamageNoKnockback() {
+        TakeDamage(Vector3.zero);
+    }
     public void TakeDamage(Vector3 knockback) {
         if (dead) return;
         if (invincibility > 0 || isSuper) return;
@@ -866,12 +921,20 @@ public class Player : MonoBehaviour
     IEnumerator _Kill() {
         //GetComponent<Collider>().enabled = false;
         //rb.velocity = Vector3.up * 17;
+        rTime = 99;
         rb.angularVelocity = new Vector3(Random.Range(-69, 69), Random.Range(-69, 69), Random.Range(-69, 69));
         rb.useGravity = true;
         GetComponent<ConstantForce>().enabled = false;
         rb.constraints = RigidbodyConstraints.None;
         inputEnabled = false;
-        yield return new WaitForSeconds(2.7f);
+        float timer = 1.1f;
+        while (timer > 0) {
+            timer -= Time.deltaTime;
+            CameraThing.main.freecam = true;
+            if (Input.GetButtonDown("Stomp")) timer = 0;
+            if (Input.GetKey(KeyCode.F)) timer = float.PositiveInfinity;
+            yield return null;
+        }
         StageLoader.main.RestartStage();
     }
     void OnDrawGizmos() {

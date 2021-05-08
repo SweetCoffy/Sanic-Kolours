@@ -76,10 +76,10 @@ public class StageLoader : MonoBehaviour {
         /*Debug.Log("Loading but 2");*/
         int c = bosses.Count;
         for (int i = c - 1; i > 0; i--) {
-                bosses[i].DeleteFromExistence();
-                bosses.RemoveAt(i);
+            bosses[i].DeleteFromExistence();
             yield return new WaitForEndOfFrame();
         }
+        bosses.RemoveAll(h => true);
         /*Debug.Log("Loading but 3");*/
         yield return new WaitForSeconds(2.2f);
         AsyncOperation ao = SceneManager.LoadSceneAsync(l.buildIndex);

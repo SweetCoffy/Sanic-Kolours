@@ -32,7 +32,7 @@ public class ZoneInfo : MonoBehaviour {
     public void PlayerStart() {
         if (startWithMaxBoost) s.player.boost = s.player.maxBoost;
         s.player.lastCheckpoint = playerSpawn;
-        if (startSuper) s.player.SuperTransform();
+        if (startSuper) s.player.SuperTransform(true);
         s.player.rings = startRings;
         s.player.transform.position = playerSpawn.position;
     }
