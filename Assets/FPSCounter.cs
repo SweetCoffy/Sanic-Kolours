@@ -4,7 +4,7 @@ public class FPSCounter : MonoBehaviour {
     public float sixtyFpsDeltaTime = 0.02f;
     public float updateRate = 1;
     Text t;
-    void Start() {/*Debug.Log("Start");*/
+    void Start() {/**/
         t = GetComponent<Text>();
         UpdateCounter();
         InvokeRepeating("UpdateCounter", 1 / updateRate, 1 / updateRate);

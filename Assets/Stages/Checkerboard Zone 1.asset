@@ -18,4 +18,5 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: a30d60f8f9baeba4fb4b69b16b50fef7, type: 3}
   fullName: Checkerboard Hill Zone 1
   act: There's no hills
+  unlockOnEnd: []
   next: {fileID: 11400000, guid: 9ec1ea1cf5202904da84823ad1f9ce58, type: 2}

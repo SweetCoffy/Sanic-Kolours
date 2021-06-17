@@ -12,7 +12,7 @@ public class FollowPath : BossMovement {
     bool move = true;
     public float distanceThreshold = 1;
     int curWaypoint = 0;
-    protected override void Start() {/*Debug.Log("Start");*/
+    protected override void Start() {/**/
         base.Start();
         Transform waypointsChild = null;
         for (int i = 0; i < transform.childCount; i++) {

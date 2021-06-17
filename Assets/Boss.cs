@@ -17,7 +17,7 @@ public class Boss : Enemy {
         }
         return m;
     }
-    protected override void Start() {/*Debug.Log("Start");*/
+    protected override void Start() {/**/
         base.Start();
         bossCount++;
         movementComponents = new List<BossMovement>();

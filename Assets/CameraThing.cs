@@ -42,16 +42,23 @@ public class CameraThing : MonoBehaviour
     public float freecamSpeed = 10;
     public bool rotate = true;
     public bool freecam = false;
+    public bool firstPerson = false;
+    Vector3 m;
     Vector3 xPos;
     Vector3 yPos;
-    void Start() {/*Debug.Log("Start");*/
+    Vector3 cPos;
+    public bool strafe = false;
+    void Start() {/**/
         main = this;
         yRotation = transform.localEulerAngles.y;
         p = target.GetComponent<Player>();
         xPos = xAxis.localPosition;
         yPos = yAxis.localPosition;
+        cPos = Camera.main.transform.localPosition;
+        m = intensity;
     }
     void UpdateCamera() {
+        mouseSensibility = Game.mouseSensitivity;
         if (Input.GetMouseButtonDown(0)) {
             curSpeed = mouseSensibility;
             Cursor.lockState = CursorLockMode.Locked;
@@ -61,12 +68,15 @@ public class CameraThing : MonoBehaviour
         }
         bool hhh = true;
         if (p) {
-            if (p.TwoDMode && !p.dead) {
+            if (p.TwoDMode && !p.dead && !firstPerson) {
                 hhh = false;
                 yRotation = Mathf.Lerp(yRotation, 0, resetSpeed * Time.deltaTime);
                 xRotation = Mathf.Lerp(xRotation, -26.082f, resetSpeed * Time.deltaTime);
             }
         }
+        if (firstPerson) {
+            intensity = Vector3.zero;
+        } else intensity = m;
         if (updateDirections) {
             forward = transform.forward;
             right = transform.right;
@@ -89,6 +99,7 @@ public class CameraThing : MonoBehaviour
             originalShakeDuration = 0;
             shakeIntensity = 0;
         }
+        if (Input.GetKeyDown(KeyCode.J)) strafe = !strafe;
         if (rotate) {
             xAxis.localRotation = Quaternion.Euler(xRotation, 0, 0);
             Quaternion r = Quaternion.Euler(0, yRotation, 0);
@@ -108,14 +119,23 @@ public class CameraThing : MonoBehaviour
             } else if (Input.GetButton("Boost")) {
                 mov.y -= 1;
             }
-            Camera.main.transform.localPosition = Vector3.zero;
-            yAxis.localPosition = Vector3.zero;
-            xAxis.localPosition = Vector3.zero;
             transform.position += ((Camera.main.transform.forward * mov.z) + (Camera.main.transform.right * mov.x) + (Vector3.up * mov.y)) * Time.deltaTime * freecamSpeed;
+        }
+        if (Input.GetKeyDown(KeyCode.F)) {
+            firstPerson = !firstPerson;
+        }
+        if (firstPerson) {
+            Camera.main.transform.localPosition = Vector3.zero;
+            yAxis.localPosition = Vector3.up * 1.5f;
+            xAxis.localPosition = Vector3.zero;
             yetAnotherAxis.position = transform.position;
         } else {
             yAxis.localPosition = yPos;
             xAxis.localPosition = xPos;
+            Camera.main.transform.localPosition = cPos;
+        }
+        if (p.dead && !firstPerson && !freecam) {
+            Camera.main.transform.LookAt(p.transform);
         }
     }
     void FixedUpdate()

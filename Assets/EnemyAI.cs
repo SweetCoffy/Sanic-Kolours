@@ -6,7 +6,7 @@ public class EnemyAI : MonoBehaviour
     Enemy e;
     public float speed = 100;
     public float fleeThreshold = 1;
-    void Start() {/*Debug.Log("Start");*/
+    void Start() {/**/
         rb = GetComponent<Rigidbody>();
         e = GetComponent<Enemy>();
     }

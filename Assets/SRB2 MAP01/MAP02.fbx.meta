@@ -1,0 +1,487 @@
+fileFormatVersion: 2
+guid: 2882b26942463d84d900f6edf24dcaef
+ModelImporter:
+  serializedVersion: 20200
+  internalIDToNameTable: []
+  externalObjects:
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: BRIS.001
+    second: {fileID: 2100000, guid: b377ef15bd90cbe449d28bf91d4c3a57, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: CFALL1.001
+    second: {fileID: 2100000, guid: a71fd7549070e4f43846f6cbcb7cbfc7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: Default.001
+    second: {fileID: 2100000, guid: 977b548eee1c2014381f02ecfc2c8adf, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: FWATER1.001
+    second: {fileID: 2100000, guid: 85219fa91a78e27459f233d8936d7cac, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: F_SKY1.001
+    second: {fileID: 2100000, guid: 08ac05b56ea335f4e80ce24a807e3af4, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFALL1
+    second: {fileID: 2100000, guid: a71fd7549070e4f43846f6cbcb7cbfc7, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFSM1R.001
+    second: {fileID: 2100000, guid: 71485d09d25c09e4cb80461a4aa667eb, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFSM2R.001
+    second: {fileID: 2100000, guid: 24c6ec1e0f88a014c8498a930c995e01, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFSM3R.001
+    second: {fileID: 2100000, guid: 22369b8a5cd7a0140b9844aac7bb657f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFSM4R.001
+    second: {fileID: 2100000, guid: 19336b46f6aa6a4478277842ed661b81, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFS_CLD1.001
+    second: {fileID: 2100000, guid: 34014a9b508ca9c49840152cbed8639b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFS_CLD2.001
+    second: {fileID: 2100000, guid: 82ecdf5e9ef917341a48b2eb243f22e0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFS_CLD3.001
+    second: {fileID: 2100000, guid: bcb982b00b59f554eb0aad120a796cd9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFS_CLD4.001
+    second: {fileID: 2100000, guid: 9d6f5423b98fb374b8732415e2f61f77, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZBLOCK.001
+    second: {fileID: 2100000, guid: a9b73e837b53153478ee2b094ce0d7c3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZBLOKS.001
+    second: {fileID: 2100000, guid: 679271105ad7d5d48bfe30da45866f03, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZBRICK.001
+    second: {fileID: 2100000, guid: 079ef2523ab14a449a9dc6cc9a838414, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZBRIDG.001
+    second: {fileID: 2100000, guid: 8816dad1931dc23409bd1812595a76d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZCHEK1.001
+    second: {fileID: 2100000, guid: 0e3633a1596f14d4f942cb161966d529, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZCHEK2.001
+    second: {fileID: 2100000, guid: 3a33e412da65c0b46a3a2f7a7fc45e97, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZCHEKB
+    second: {fileID: 2100000, guid: afd8564f19b27a04b9c5e0714b12f93a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZCRACK
+    second: {fileID: 2100000, guid: f3c6b468ccf941049a08d26934523f50, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZCRAK1
+    second: {fileID: 2100000, guid: 9289112a4a650484a871e694dd95a324, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZCRAK2.001
+    second: {fileID: 2100000, guid: 813fcedef055cac459e854a62e272d65, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZDOOR.001
+    second: {fileID: 2100000, guid: 295fc3979cb8d0449a90077bfb14ad51, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFALL1.001
+    second: {fileID: 2100000, guid: 8d0951b8363d7ec48a67a93a1cde7e83, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFENCW.001
+    second: {fileID: 2100000, guid: 561c03429f2612f4781789cf2d6603c2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR01.001
+    second: {fileID: 2100000, guid: 234a38537cfd36e49ac69d1eac5f83c2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR02.001
+    second: {fileID: 2100000, guid: 858f8395cc574bf478cb23dd487f9384, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR03.001
+    second: {fileID: 2100000, guid: 756305e7fc5954c4984611de3c3a2de8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR05.001
+    second: {fileID: 2100000, guid: c40c53fa4f0e9d84193917848bcba1b9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR09.001
+    second: {fileID: 2100000, guid: ed7163ea8846a8e4e9e3574dcc77e20c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR10.001
+    second: {fileID: 2100000, guid: fcabb5dce8f3f3345b57856901e7f9ea, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR11.001
+    second: {fileID: 2100000, guid: 0605bfa966a71234a886eb12cc5f5fcc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR12.001
+    second: {fileID: 2100000, guid: 84219c3a88fa0d5409f89bab8ffa21d8, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR13.001
+    second: {fileID: 2100000, guid: 30bdc7dba233e174789ab057c93c3e80, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR14.001
+    second: {fileID: 2100000, guid: ab88216d2366d7e4ea19a129ae79f48d, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR15.001
+    second: {fileID: 2100000, guid: 4c70dc6ce23a3ff45ba0932032a792d1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR16.001
+    second: {fileID: 2100000, guid: 2a2b9b6db59835c4b96a48220a8a8c99, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR17.001
+    second: {fileID: 2100000, guid: 11daa3dda0c151142b1533e7c352e9c3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR18.001
+    second: {fileID: 2100000, guid: 39661d871e5e0334fae0ce545fd03220, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR20
+    second: {fileID: 2100000, guid: 0c4de9e0a8f522a40a101c5f0d4531c1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR21.001
+    second: {fileID: 2100000, guid: 69f9baf1b50562f44bc25ea1daa5899f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFLR22.001
+    second: {fileID: 2100000, guid: ad08c9c49782b284a9da091bd3a5395a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFNCB.001
+    second: {fileID: 2100000, guid: 714bcffdec325c64fb39f5b9ca3613ef, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFNCC.001
+    second: {fileID: 2100000, guid: ab5449821562fb846ae52245154e201e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFNCD.001
+    second: {fileID: 2100000, guid: c53c65f9d3767e448aa6f5ee061720c0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZFNCF.001
+    second: {fileID: 2100000, guid: 248bec5dffb785e42826b30a48d8081e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZGRASS.001
+    second: {fileID: 2100000, guid: 4eb5d4d2c20f4d348b37919d47119609, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZGRSW.001
+    second: {fileID: 2100000, guid: b51d2a8cca41c4a498c5d1698fc7ca1c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZINSID.001
+    second: {fileID: 2100000, guid: 427b7930c8d31494fa8a407052d011bc, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZPLTF
+    second: {fileID: 2100000, guid: 2484808cb4356f14f9da7d2246189818, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZRAIL.001
+    second: {fileID: 2100000, guid: 2462c89b9d84c2546a8bd057817b5d4c, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZRAIL2
+    second: {fileID: 2100000, guid: b193c41eb923085438049135f7e266d2, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZRAIL3
+    second: {fileID: 2100000, guid: 6ca476bee17477b468c6de1026b0068b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZROCK.001
+    second: {fileID: 2100000, guid: 19cf7deb0d8ffb943a9145e0659aa46e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZROCKB
+    second: {fileID: 2100000, guid: 7f6c5a04d2d121e409955b200da50891, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZROCKC
+    second: {fileID: 2100000, guid: cd27a4fcafcdbec4d982eb0e3d2b923f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZROOF.001
+    second: {fileID: 2100000, guid: 6c86d37e234d2504780d1d2e6c44be10, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZTILA1
+    second: {fileID: 2100000, guid: 33267b85fe647a647898cdda6e709e4e, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZTILA2
+    second: {fileID: 2100000, guid: e9bf4e4f58909cc4aa9bc13fbcdb695a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZTILC2
+    second: {fileID: 2100000, guid: 7deb68a0a96d0984eb9e434ef96854ac, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZTILE2
+    second: {fileID: 2100000, guid: 1a9a1e406ae03854d8c3121012b6f0da, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZTILF2
+    second: {fileID: 2100000, guid: bb1abb69c645de64aaa787d96e1fac88, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZVINE1.001
+    second: {fileID: 2100000, guid: 8bec839969985104a9261f35653f803f, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZVINE2.001
+    second: {fileID: 2100000, guid: 2d45a92f975810b4b969ebb22479b5d3, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZVINE3.001
+    second: {fileID: 2100000, guid: c32267ca4006ca84ab36e582c383df2a, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZWALL.001
+    second: {fileID: 2100000, guid: 08d621ec0c3b4af489782a21fa51bab1, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZWALL2.001
+    second: {fileID: 2100000, guid: 72a3847e05ef10044a887770858d31fe, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZWALLB
+    second: {fileID: 2100000, guid: a045fb428954e554fbe23c770b2a2bfd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: GFZWINDW.001
+    second: {fileID: 2100000, guid: 587e807f5e975c642b03772bc905784b, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: JNGWD4
+    second: {fileID: 2100000, guid: aecaa860b69943a4e9b6b5dd5567b673, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: JNGWDF4B
+    second: {fileID: 2100000, guid: 807fb6a6c1bf7f84ca9435149b3cc8a0, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: PIT
+    second: {fileID: 2100000, guid: a4f5d6f289971cc46b7f5c9fef36b0bd, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SFLR09
+    second: {fileID: 2100000, guid: 152da972fdf5b3d40b5d89c6cd16d265, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: SPEC3
+    second: {fileID: 2100000, guid: f03a0372f3891b64ab6353e3cf7716f9, type: 2}
+  - first:
+      type: UnityEngine:Material
+      assembly: UnityEngine.CoreModule
+      name: ~PIT
+    second: {fileID: 2100000, guid: 0fb5b1a0441dccc4ba1594166863cade, type: 2}
+  materials:
+    materialImportMode: 2
+    materialName: 1
+    materialSearch: 0
+    materialLocation: 1
+  animations:
+    legacyGenerateAnimations: 4
+    bakeSimulation: 0
+    resampleCurves: 1
+    optimizeGameObjects: 0
+    motionNodeName: 
+    rigImportErrors: 
+    rigImportWarnings: 
+    animationImportErrors: 
+    animationImportWarnings: 
+    animationRetargetingWarnings: 
+    animationDoRetargetingWarnings: 0
+    importAnimatedCustomProperties: 0
+    importConstraints: 0
+    animationCompression: 1
+    animationRotationError: 0.5
+    animationPositionError: 0.5
+    animationScaleError: 0.5
+    animationWrapMode: 0
+    extraExposedTransformPaths: []
+    extraUserProperties: []
+    clipAnimations: []
+    isReadable: 0
+  meshes:
+    lODScreenPercentages: []
+    globalScale: 1
+    meshCompression: 0
+    addColliders: 1
+    useSRGBMaterialColor: 1
+    sortHierarchyByName: 1
+    importVisibility: 1
+    importBlendShapes: 1
+    importCameras: 1
+    importLights: 1
+    fileIdsGeneration: 2
+    swapUVChannels: 0
+    generateSecondaryUV: 0
+    useFileUnits: 1
+    keepQuads: 0
+    weldVertices: 1
+    bakeAxisConversion: 0
+    preserveHierarchy: 0
+    skinWeightsMode: 0
+    maxBonesPerVertex: 4
+    minBoneWeight: 0.001
+    meshOptimizationFlags: -1
+    indexFormat: 0
+    secondaryUVAngleDistortion: 8
+    secondaryUVAreaDistortion: 15.000001
+    secondaryUVHardAngle: 88
+    secondaryUVMarginMethod: 1
+    secondaryUVMinLightmapResolution: 40
+    secondaryUVMinObjectScale: 1
+    secondaryUVPackMargin: 4
+    useFileScale: 1
+  tangentSpace:
+    normalSmoothAngle: 60
+    normalImportMode: 0
+    tangentImportMode: 3
+    normalCalculationMode: 4
+    legacyComputeAllNormalsFromSmoothingGroupsWhenMeshHasBlendShapes: 0
+    blendShapeNormalImportMode: 1
+    normalSmoothingSource: 0
+  referencedClips: []
+  importAnimation: 1
+  humanDescription:
+    serializedVersion: 3
+    human: []
+    skeleton: []
+    armTwist: 0.5
+    foreArmTwist: 0.5
+    upperLegTwist: 0.5
+    legTwist: 0.5
+    armStretch: 0.05
+    legStretch: 0.05
+    feetSpacing: 0
+    globalScale: 1
+    rootMotionBoneName: 
+    hasTranslationDoF: 0
+    hasExtraRoot: 0
+    skeletonHasParents: 1
+  lastHumanDescriptionAvatarSource: {instanceID: 0}
+  autoGenerateAvatarMappingIfUnspecified: 1
+  animationType: 2
+  humanoidOversampling: 1
+  avatarSetup: 0
+  addHumanoidExtraRootOnlyWhenUsingAvatar: 1
+  additionalBone: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

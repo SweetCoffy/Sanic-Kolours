@@ -13,7 +13,7 @@ public class Enemy : MonoBehaviour {
     public float parentDamageMultiplier = 1;
     bool respawning = false;
     float invincibility = 1;
-    protected virtual void Start() {/*Debug.Log("Start");*/
+    protected virtual void Start() {/**/
         startHealth = health;
         originalPos = transform.position;
     }
@@ -28,7 +28,7 @@ public class Enemy : MonoBehaviour {
         if (invincibility > 0) return;
         Player p = col.gameObject.GetComponent<Player>();
         if (p) {
-            /*Debug.Log("h");*/
+            /**/
             if (p.DestroyEnemies) {
                 if (p.doingHomingAttack) p.rb.velocity = (p.rb.velocity.magnitude / 6f) * p.transform.up;
                 else if (p.BounceOffEnemies) p.rb.velocity = -p.rb.velocity / 1.8f;
@@ -37,6 +37,7 @@ public class Enemy : MonoBehaviour {
                 if (p.isSuper) damage += p.superDamage;
                 if (p.isBoosting) damage += p.boostDamage;
                 TakeDamage(p, damage);
+                p.bTime = 1;
                 p.doingHomingAttack = false;
             } else if (damagePlayer) {
                 p.TakeDamage(-p.facing * knockback);
@@ -47,7 +48,7 @@ public class Enemy : MonoBehaviour {
         if (invincibility > 0) return;
         Player p = col.gameObject.GetComponent<Player>();
         if (p) {
-            /*Debug.Log("h");*/
+            /**/
             if (p.DestroyEnemies) {
                 if (p.doingHomingAttack) p.rb.velocity = (p.rb.velocity.magnitude / 6f) * p.transform.up;
                 else if (p.BounceOffEnemies) p.rb.velocity = -p.rb.velocity / 1.8f;
@@ -83,7 +84,7 @@ public class Enemy : MonoBehaviour {
         if (invincibility > 0) return;
         invincibility = 0.5f;
         health -= damage;
-        /*Debug.Log("oof");*/
+        /**/
         SendMessage("OnDamage", p, SendMessageOptions.DontRequireReceiver);
         if (transform.parent) {
             Enemy e = transform.parent.GetComponent<Enemy>();

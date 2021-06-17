@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: Bob-Omb Battlefield
   m_EditorClassIdentifier: 
   buildIndex: 4
-  stageNumber: 6
+  stageNumber: -5
   zoneName: Copyright Land Zone
   icon: {fileID: 0}
   fullName: Bob-Omb Battlefield

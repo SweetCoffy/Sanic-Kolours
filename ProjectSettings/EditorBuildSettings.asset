@@ -26,4 +26,25 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/CHZ 3.unity
     guid: ae973aecbf61abf4c8cb5d7f17363b8d
+  - enabled: 1
+    path: Assets/Scenes/Settings.unity
+    guid: 74fcaca76390f8343a0377a2e30e0291
+  - enabled: 1
+    path: Assets/Scenes/TEZ 2.unity
+    guid: 9dbe02531b543ac4e8ec063988ee3b3b
+  - enabled: 1
+    path: Assets/Scenes/CFZ.unity
+    guid: b324320a38cc80a40bbc6e0d5c6eba20
+  - enabled: 1
+    path: Assets/Scenes/THZ1.unity
+    guid: 10c84fb883320df4abe2c75ceb1245c6
+  - enabled: 1
+    path: Assets/Scenes/GFZ2.unity
+    guid: 9f76fd4abb3955749a6027b76b609169
+  - enabled: 1
+    path: Assets/Scenes/GFZ1.unity
+    guid: f2fd4117c8ca0304a930cbb397a75a0d
+  - enabled: 1
+    path: Assets/Scenes/PTZ.unity
+    guid: a06c690a175feeb4c977cb7ecd264966
   m_configObjects: {}

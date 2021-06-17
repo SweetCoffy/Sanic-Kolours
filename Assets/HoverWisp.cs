@@ -3,7 +3,7 @@ using UnityEngine;
 public class HoverWisp : Wisp {
     public float speed = 250;
     public float hoverForce = 250;
-    public override void Start() {/*Debug.Log("Start");*/
+    public override void Start() {/**/
         base.Start();
         player.inputEnabled = false;
         player.GetComponent<ConstantForce>().relativeForce *= 0.25f;

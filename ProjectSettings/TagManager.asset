@@ -8,11 +8,11 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - HUD
   - Water
   - UI
-  - 
-  - 
+  - Wall
+  - Wall Ground
   - Ground
   - Post Processing
   - Reflections Ignore

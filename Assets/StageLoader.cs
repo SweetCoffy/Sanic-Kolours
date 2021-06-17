@@ -10,10 +10,20 @@ public class StageLoader : MonoBehaviour {
     public List<BossHUD> bosses;
     public Canvas canvas;
     public Level curStage;
+    public GameObject defaultHudStyle;
     public Level mainMenu;
     public static StageLoader main;
     bool loadingStage = false;
-    void Start() {/*Debug.Log("Start");*/
+    void Update() {
+        if (Input.GetKeyDown(KeyCode.Escape) && Input.GetKey(KeyCode.Period)) {
+            GoToMainMenu();
+        }
+        Game.Update();
+    }
+    void Start() {/**/
+        if (Game.hudStyle == null) {
+            Game.hudStyle = defaultHudStyle;
+        }
         if (main) {
             Destroy(gameObject);
             return;
@@ -23,6 +33,7 @@ public class StageLoader : MonoBehaviour {
         main = this;
         DontDestroyOnLoad(gameObject);
         LoadStage(mainMenu);
+        Game.Start();
     }
     public void AddBoss(Enemy b) {
         BossHUD h = Instantiate(bossHUD, Vector3.zero, Quaternion.identity, bossesHolder).GetComponent<BossHUD>();
@@ -39,13 +50,22 @@ public class StageLoader : MonoBehaviour {
         bosses = bosses.FindAll(b => b != null);
     }
     public Coroutine LoadStage(Level l, bool tryAgain = false) {
-        /*Debug.Log("Loading but 1");*/
+        /**/
         if (loadingStage) return null;
+        if (l == null) l = mainMenu;
         curStage = l;
         loadingStage = true;
         return StartCoroutine(_Loading(l, tryAgain));
     }
     public Coroutine EndStage() {
+        if (Player.main) {
+            Game.totalRings += Player.main.rings;
+        }
+        if (curStage.unlockOnEnd != null) {
+            for (int i = 0; i < curStage.unlockOnEnd.Length; i++) {
+                Game.UnlockByID(curStage.unlockOnEnd[i]);
+            }
+        }
         return LoadStage(curStage.next);
     }
     public Coroutine RestartStage() {
@@ -55,7 +75,7 @@ public class StageLoader : MonoBehaviour {
         return LoadStage(mainMenu);
     }
     IEnumerator _Loading(Level l, bool tryAgain) {
-        /*Debug.Log("Loading");*/
+        /**/
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         LoadingScreen ls = null;
@@ -73,14 +93,20 @@ public class StageLoader : MonoBehaviour {
             DontDestroyOnLoad(ta.gameObject);
             ta.anim.SetTrigger("Start");
         }
-        /*Debug.Log("Loading but 2");*/
+        /**/
         int c = bosses.Count;
-        for (int i = c - 1; i > 0; i--) {
-            bosses[i].DeleteFromExistence();
+        for (int i = c - 1; i >= 0; i--) {
+            try {
+                bosses[i].DeleteFromExistence();
+            } catch (System.Exception) {
+                try {
+                    Destroy(bosses[i].gameObject);
+                } catch (System.Exception) {}
+            }
             yield return new WaitForEndOfFrame();
         }
         bosses.RemoveAll(h => true);
-        /*Debug.Log("Loading but 3");*/
+        /**/
         yield return new WaitForSeconds(2.2f);
         AsyncOperation ao = SceneManager.LoadSceneAsync(l.buildIndex);
         ao.priority = -1;

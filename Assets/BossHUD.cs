@@ -6,7 +6,7 @@ public class BossHUD : MonoBehaviour {
     public Text bossName;
     public Animator anim;
     public Image healthBar;
-    void Start() {/*Debug.Log("Start");*/
+    void Start() {/**/
         bossName.text = target.gameObject.name;
     }
     void Update() {

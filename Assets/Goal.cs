@@ -5,6 +5,9 @@ using UnityEngine;
 public class Goal : MonoBehaviour
 {
     void OnTriggerEnter(Collider col) {
-        if (col.GetComponent<Player>()) ZoneInfo.current.End();
+        Player p = col.GetComponent<Player>();
+        if (p) {
+            StageLoader.main.EndStage();
+        }
     }
 }

@@ -18,4 +18,5 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 8d8e22c5971fc9246870bf8f8391b663, type: 3}
   fullName: Terminal Egg Zone
   act: Terminal Egg Zone
-  next: {fileID: 11400000, guid: 6676365f49447db4899c3007dd95aba1, type: 2}
+  unlockOnEnd: []
+  next: {fileID: 11400000, guid: 9e11747e9f3a341469a37a74e7ef1da6, type: 2}

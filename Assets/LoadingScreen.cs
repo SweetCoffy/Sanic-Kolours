@@ -10,7 +10,7 @@ public class LoadingScreen : MonoBehaviour {
     public string zName;
     public string zAct;
     public int sNumber;
-    void Start() {/*Debug.Log("Start");*/
+    void Start() {/**/
         if (sNumber > -1) stageNumber.text = "STAGE " + sNumber.ToString();
         else stageNumber.text = "";
         zoneAct.text = zAct;

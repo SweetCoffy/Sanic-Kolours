@@ -141,7 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9a4412310f782e14b946b4f136cecc59, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  force: 70
+  force: 200
   forcePosition: 1
 --- !u!114 &60790648751210608
 MonoBehaviour:
@@ -156,10 +156,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   health: 999999
+  startHealth: 0
   destroyEffect: {fileID: 0}
   respawn: 1
   boostDrop: 0
   respawnTime: 1
+  damagePlayer: 0
+  knockback: 13
   parentDamageMultiplier: 1
 --- !u!1 &8274163976995925675
 GameObject:

@@ -9,9 +9,10 @@ public class Level : ScriptableObject {
     public Sprite icon;
     public string fullName = "Test Zone";
     public string act = "";
+    public string[] unlockOnEnd;
     public Level next;
     [ContextMenu("Force Load")]
-    public void Start() {/*Debug.Log("Start");*/
+    public void Start() {/**/
         StageLoader.main.LoadStage(this);
     }
 }

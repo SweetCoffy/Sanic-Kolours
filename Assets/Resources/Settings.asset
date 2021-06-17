@@ -13,6 +13,6 @@ MonoBehaviour:
   m_Name: Settings
   m_EditorClassIdentifier: 
   gravity: {x: 0, y: -30, z: 0}
-  calculateSpringTrajectory: 0
+  calculateSpringTrajectory: 1
   shakeIntensity: 2.1
   ringsShakeIntensity: 6

@@ -9,7 +9,7 @@ public class CameraFixedPositionType : CameraType {
         startPos = cam.yetAnotherAxis.position;
     }
     public override void CameraUpdate() {
-        /*Debug.Log("Updat");*/
+        /**/
         cam.yetAnotherAxis.position = Vector3.Lerp(startPos, reference.position, progress);
         if (progress < 1) progress += deltaTime * speed;
     }
