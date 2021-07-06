@@ -51,6 +51,7 @@ public class Player : MonoBehaviour
                 float m = 1;
                 if (isSuper && !isBoosting) m = superSpeedMultiplier;
                 if (boostMode && isGrounded) return speed * multiplier * m;
+                if (boostMode && !isGrounded) return speed * (1 + (multiplier * 0.1f)) * m;
                 return speed * m;
             }
         }
@@ -127,6 +128,7 @@ public class Player : MonoBehaviour
         }
         [SerializeField] float _boost = 0;
         public float boostSpeed = 225;
+        public float initialSpeedBoost = 100;
         public float maxBoostSpeed = 200;
         public bool boostEnabled = true;
         public float boostConsumeRate = 10;
@@ -209,14 +211,14 @@ public class Player : MonoBehaviour
         public float Drag {
             get {
                 if ((spinning && isGrounded) || spring) return 0;
-                if (movement.magnitude > 0) return drag * 0.3f;
+                if (movement.magnitude > 0 || isBoosting) return drag * 0.3f;
                 return drag;
             }
         }
         public bool doingHomingAttack = false;
         public bool BounceOffEnemies {
             get {
-                return doingHomingAttack || (spinning && !isGrounded);
+                return doingHomingAttack || (spinning && !isGrounded) && !isBoosting;
             }
         }
         public bool DestroyEnemiesNoSuper {
@@ -239,6 +241,7 @@ public class Player : MonoBehaviour
             get {
                 float m = 1;
                 if (isSuper) m = superMaxSpeedMultiplier;
+                if (!isGrounded) return float.PositiveInfinity;
                 if (isBoosting && isGrounded) return maxBoostSpeed * m;
                 if (spinning && isGrounded) return float.MaxValue;
                 return maxSpeed * m;
@@ -271,6 +274,9 @@ public class Player : MonoBehaviour
         int targetAmount = 100;
         public static Player main;
         Vector2 lastMovement = Vector2.zero;
+        public bool UsingWisp { get {
+            return currWisp != null && currWisp.used;
+        } }
     void UpdateHomingAttackTarget() {
         if (doingHomingAttack) return;
         float minDist = float.PositiveInfinity;
@@ -572,10 +578,11 @@ public class Player : MonoBehaviour
         if (isGrounded) spring = false;
         Collider[] hhhh = Physics.OverlapSphere(floorDetection.position, radius, groundMask);
         isGrounded = hhhh.Length > 0;
-        Vector3 m = ((camForward * movement.y) + (camRight * movement.x)).normalized;
-        if (!(spinning && isGrounded)) {
+        Vector3 mov = movement.normalized;
+        Vector3 m = ((camForward * mov.y) + (camRight * mov.x));
+        if (!(spinning && isGrounded) && !isBoosting) {
             rb.AddRelativeForce(m * Speed);
-        }  else if (spinning && isGrounded) {
+        }  else if (spinning && isGrounded && !isBoosting) {
             rb.AddRelativeForce(m * Speed * 0.25f);
         }
         var target = rb.velocity;
@@ -815,8 +822,8 @@ public class Player : MonoBehaviour
                 stomp = true;
                 spinning = true;
             }
-            movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical")).normalized;
-            if (movement.magnitude > 0.1f) lastMovement = movement.normalized;
+            movement = new Vector2(Input.GetAxisRaw("Horizontal"), Input.GetAxisRaw("Vertical"));
+            if (movement.magnitude > 0.1f) lastMovement = movement;
             jump = Input.GetButtonDown("Jump");
             //if (!homingAttackTarget) doingHomingAttack = false;
             
@@ -853,12 +860,12 @@ public class Player : MonoBehaviour
 
                   
             } 
-            if (isBoosting && isSuper && !isGrounded && didAirDash) {
+            if (isBoosting && isSuper && !isGrounded) {
                 c.force = Vector3.zero;
                 Vector3 v = rb.velocity;
                 if (v.y < 0) v.Scale(Vector3.forward + Vector3.right);
                 rb.velocity = v;
-                ringCooldown -= Time.deltaTime * .5f;
+                ringCooldown -= Time.deltaTime;
             }
             if (isSuper) {
                 if (!Input.GetButtonDown("Boost")) didAirDash = false;
@@ -894,9 +901,10 @@ public class Player : MonoBehaviour
                     //outlineThing.color = Color.white;
                     Vector3 scaledVelocity = rb.velocity;
                     scaledVelocity.Scale(transform.right + transform.forward);
-                    Vector2 mo = ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)).normalized;
+                    Vector3 mo = ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)).normalized;
                     if (isSuper) ringCooldown -= Time.deltaTime;
-                    if (isGrounded || isSuper) rb.AddRelativeForce(mo * boostSpeed * m, ForceMode.Acceleration);
+                    Debug.Log(mo);
+                    rb.AddRelativeForce(mo * boostSpeed * m, ForceMode.Acceleration);
                     //boostThing.sizeDelta = new Vector2(3, 25);
                     if (boost > MaxBoost) boost -= Time.deltaTime * boostConsumeRate * 2;
                     else boost -= Time.deltaTime * boostConsumeRate;
@@ -936,7 +944,7 @@ public class Player : MonoBehaviour
                     Vector3 scaledVelocity = rb.velocity;
                     scaledVelocity.Scale(transform.right + transform.forward);
                     Vector3 mo = ((camForward * lastMovement.normalized.y) + (camRight * lastMovement.normalized.x)).normalized;
-                    rb.AddRelativeForce(mo * boostSpeed * 2.5f, ForceMode.VelocityChange);
+                    rb.AddRelativeForce(mo * initialSpeedBoost, ForceMode.VelocityChange);
                     Camera.main.fieldOfView += 30;
                     boost -= 12.5f;
                     //CameraThing.main.Shake(0.5f, 1f);
@@ -1010,15 +1018,15 @@ public class Player : MonoBehaviour
     public void TakeDamageNoKnockback() {
         TakeDamage(Vector3.zero);
     }
-    public void TakeDamage(Vector3 knockback) {
+    public void TakeDamage(Vector3 knockback, bool ignoreSuper = false, float amt = 1) {
         if (dead) return;
-        if (invincibility > 0 || isSuper) return;
+        if (invincibility > 0 || (isSuper && !ignoreSuper)) return;
         rb.velocity = knockback;
         if (rings <= 0) {
             Kill();
             return;
         }
-        var lostRings = Mathf.Clamp(rings, 0, 50);
+        var lostRings = Mathf.Clamp(rings, 0, (int)(20 * amt));
         var droppedRings = Mathf.Clamp(lostRings, 0, 30);
         var angle = 360 / droppedRings;
         for (var i = 0; i < droppedRings; i++) {

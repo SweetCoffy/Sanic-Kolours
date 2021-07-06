@@ -63,7 +63,7 @@ public class CameraThing : MonoBehaviour
             curSpeed = mouseSensibility;
             Cursor.lockState = CursorLockMode.Locked;
         } else if (Input.GetKeyDown(KeyCode.JoystickButton6) || Input.GetKeyDown(KeyCode.JoystickButton7) || Input.GetKeyDown(KeyCode.Escape)) {
-            curSpeed = rSpeed;
+            if (!Input.GetKeyDown(KeyCode.Escape)) curSpeed = rSpeed;
             Cursor.lockState = CursorLockMode.None;
         }
         bool hhh = true;

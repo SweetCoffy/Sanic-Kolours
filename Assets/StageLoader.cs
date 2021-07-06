@@ -13,7 +13,10 @@ public class StageLoader : MonoBehaviour {
     public GameObject defaultHudStyle;
     public Level mainMenu;
     public static StageLoader main;
+    public Vector3 lastCheckpoint;
+    public bool tryAgain = false;
     bool loadingStage = false;
+    public int checkpointId = 0;
     void Update() {
         if (Input.GetKeyDown(KeyCode.Escape) && Input.GetKey(KeyCode.Period)) {
             GoToMainMenu();
@@ -76,6 +79,9 @@ public class StageLoader : MonoBehaviour {
     }
     IEnumerator _Loading(Level l, bool tryAgain) {
         /**/
+        if (this.tryAgain = tryAgain) {} else {
+            checkpointId = -1;
+        };
         Cursor.lockState = CursorLockMode.None;
         Cursor.visible = true;
         LoadingScreen ls = null;

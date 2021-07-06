@@ -51,6 +51,7 @@ MonoBehaviour:
     timeLeft: 0
     beingUsed: 0
     barColor: {r: 0.08334541, g: 1, b: 0, a: 1}
+    used: 0
     consumeRate: 1
     outlineColor: {r: 1, g: 1, b: 1, a: 1}
     speed: 2500
@@ -62,6 +63,7 @@ MonoBehaviour:
     timeLeft: 0
     beingUsed: 0
     barColor: {r: 1, g: 0.29995975, b: 0, a: 1}
+    used: 0
     consumeRate: 1
     outlineColor: {r: 1, g: 1, b: 1, a: 1}
     maxSpeed: 500
@@ -72,6 +74,7 @@ MonoBehaviour:
     timeLeft: 0
     beingUsed: 0
     barColor: {r: 0, g: 0.37680292, b: 1, a: 1}
+    used: 0
     consumeRate: 1
     outlineColor: {r: 1, g: 1, b: 1, a: 1}
   slowmo:
@@ -81,6 +84,7 @@ MonoBehaviour:
     timeLeft: 0
     beingUsed: 0
     barColor: {r: 0.5471698, g: 0.5471698, b: 0.5471698, a: 1}
+    used: 0
     consumeRate: 1
     outlineColor: {r: 1, g: 1, b: 1, a: 1}
     newTimeScale: 0.25
@@ -501,7 +505,7 @@ Camera:
     width: 1
     height: 1
   near clip plane: 0.3
-  far clip plane: 1000
+  far clip plane: 750
   field of view: 26.991467
   orthographic: 0
   orthographic size: 5
@@ -2647,7 +2651,8 @@ MonoBehaviour:
   enteredBoostMode: 0
   maxBoost: 200
   _boost: 0
-  boostSpeed: 286.7
+  boostSpeed: 500
+  initialSpeedBoost: 400
   maxBoostSpeed: 400
   boostEnabled: 1
   boostConsumeRate: 17
@@ -2690,6 +2695,7 @@ MonoBehaviour:
     timeLeft: 0
     beingUsed: 0
     barColor: {r: 1, g: 1, b: 1, a: 1}
+    used: 0
     consumeRate: 1
     outlineColor: {r: 1, g: 1, b: 1, a: 1}
   homingAttackMask:
@@ -2740,7 +2746,7 @@ MonoBehaviour:
   camRight: {x: 0, y: 0, z: 0}
   gradientSpeed: 1.5
   doingHomingAttack: 0
-  airDashExtraSpeedMultiplier: 0.2
+  airDashExtraSpeedMultiplier: 1
   nearestRing: {fileID: 0}
   isBoosting: 0
   ringCooldown: 1

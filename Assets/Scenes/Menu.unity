@@ -3210,6 +3210,9 @@ MonoBehaviour:
   curStage: {fileID: 0}
   defaultHudStyle: {fileID: 724211286741584737, guid: 2b2efb0f268e63c46bcc5f4cba2d5cb3, type: 3}
   mainMenu: {fileID: 11400000, guid: 4fa4c832b169fc8448fbfb332e503085, type: 2}
+  lastCheckpoint: {x: 0, y: 0, z: 0}
+  tryAgain: 0
+  checkpointId: 0
 --- !u!1 &1415888156
 GameObject:
   m_ObjectHideFlags: 0
@@ -3828,11 +3831,15 @@ MonoBehaviour:
   levelPrefab: {fileID: 5768085486201653020, guid: 901995179d1958944b431509f45d3bde, type: 3}
   levels:
   - {fileID: 11400000, guid: ed6073f18bb883749b6e88a6131c7880, type: 2}
+  - {fileID: 11400000, guid: 6df6366dd3ddfa340985654dee375831, type: 2}
   - {fileID: 11400000, guid: e989ed3462077514ebe41efe300f165c, type: 2}
   - {fileID: 11400000, guid: dc81c1517314984448df602da2143d0a, type: 2}
   - {fileID: 11400000, guid: f69a8e9b308cc3843a9d271ce883a414, type: 2}
   - {fileID: 11400000, guid: 95e7321d0fe64ae41a9e1bdfe4c33a44, type: 2}
   - {fileID: 11400000, guid: 6fb4003d8c9e0214592089c039ae3efd, type: 2}
+  - {fileID: 11400000, guid: c10c935a072f5a84e8b6d13ece6a116b, type: 2}
+  - {fileID: 11400000, guid: c1f9a7325b86804489bcba49e7027aee, type: 2}
+  - {fileID: 11400000, guid: edfeec3611069dc4e88da15a7bf97cba, type: 2}
   - {fileID: 11400000, guid: 7cd9df087ecd8664997a9f4c028f4d40, type: 2}
   - {fileID: 11400000, guid: 9ec1ea1cf5202904da84823ad1f9ce58, type: 2}
   - {fileID: 11400000, guid: d7605675294190648a15752a08ece864, type: 2}

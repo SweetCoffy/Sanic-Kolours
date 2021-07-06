@@ -19,4 +19,4 @@ MonoBehaviour:
   fullName: SRB2 PTZ
   act: PIpe Towers Zone
   unlockOnEnd: []
-  next: {fileID: 0}
+  next: {fileID: 11400000, guid: c10c935a072f5a84e8b6d13ece6a116b, type: 2}

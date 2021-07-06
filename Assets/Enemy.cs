@@ -9,10 +9,14 @@ public class Enemy : MonoBehaviour {
     public float boostDrop = 5;
     public float respawnTime = 10;
     public bool damagePlayer = false;
+    public bool ignoreSuper = false;
+    public float damage = 1;
     public float knockback = 13;
     public float parentDamageMultiplier = 1;
     bool respawning = false;
+    public bool alwaysDamage = false;
     float invincibility = 1;
+    public bool instaKill = false;
     protected virtual void Start() {/**/
         startHealth = health;
         originalPos = transform.position;
@@ -29,7 +33,9 @@ public class Enemy : MonoBehaviour {
         Player p = col.gameObject.GetComponent<Player>();
         if (p) {
             /**/
-            if (p.DestroyEnemies) {
+            var d = p.DestroyEnemies;
+            if (ignoreSuper) d = p.DestroyEnemiesNoSuper;
+            if (d && !alwaysDamage) {
                 if (p.doingHomingAttack) p.rb.velocity = (p.rb.velocity.magnitude / 6f) * p.transform.up;
                 else if (p.BounceOffEnemies) p.rb.velocity = -p.rb.velocity / 1.8f;
                 float damage = 1;
@@ -40,7 +46,8 @@ public class Enemy : MonoBehaviour {
                 p.bTime = 1;
                 p.doingHomingAttack = false;
             } else if (damagePlayer) {
-                p.TakeDamage(-p.facing * knockback);
+                if (!instaKill) p.TakeDamage(-p.facing * knockback, ignoreSuper, damage);
+                else p.Kill();
             }
         }
     }
@@ -49,7 +56,9 @@ public class Enemy : MonoBehaviour {
         Player p = col.gameObject.GetComponent<Player>();
         if (p) {
             /**/
-            if (p.DestroyEnemies) {
+            var d = p.DestroyEnemies;
+            if (ignoreSuper) d = p.DestroyEnemiesNoSuper;
+            if (d && !alwaysDamage) {
                 if (p.doingHomingAttack) p.rb.velocity = (p.rb.velocity.magnitude / 6f) * p.transform.up;
                 else if (p.BounceOffEnemies) p.rb.velocity = -p.rb.velocity / 1.8f;
                 float damage = 1;
@@ -57,9 +66,11 @@ public class Enemy : MonoBehaviour {
                 if (p.isSuper) damage += p.superDamage;
                 if (p.isBoosting) damage += p.boostDamage;
                 TakeDamage(p, damage);
+                p.bTime = 1;
                 p.doingHomingAttack = false;
             } else if (damagePlayer) {
-                p.TakeDamage(-p.facing * knockback);
+                if (!instaKill) p.TakeDamage(-p.facing * knockback, ignoreSuper, damage);
+                else p.Kill();
             }
         }
     }

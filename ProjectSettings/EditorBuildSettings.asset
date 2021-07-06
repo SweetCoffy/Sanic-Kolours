@@ -47,4 +47,16 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/PTZ.unity
     guid: a06c690a175feeb4c977cb7ecd264966
+  - enabled: 1
+    path: Assets/Scenes/TEZ 3.unity
+    guid: 6e45bf16f7eb78140a32f28a3b83b59e
+  - enabled: 1
+    path: Assets/Scenes/AGZ.unity
+    guid: 7deca57dee3af684bba9ab23b9a035fe
+  - enabled: 1
+    path: Assets/Scenes/RVZ 1.unity
+    guid: 22c844379aebd4f47825301785909984
+  - enabled: 1
+    path: Assets/Scenes/Emerald Coast.unity
+    guid: f5e587c7596373042ad660686ebd5f5e
   m_configObjects: {}

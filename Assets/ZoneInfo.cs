@@ -41,6 +41,8 @@ public class ZoneInfo : MonoBehaviour {
         h.player = s.player;
         s.player.hud = h;
         s.player.transform.position = playerSpawn.position;
+        if (StageLoader.main.tryAgain) s.player.transform.position = StageLoader.main.lastCheckpoint;
+        else StageLoader.main.lastCheckpoint = playerSpawn.position;
     }
     public void SlowMotion(float timescale, float duration) {
         StartCoroutine(_SlowMotion(timescale, duration));
@@ -59,6 +61,7 @@ public class ZoneInfo : MonoBehaviour {
         if (Player.main) {
             Game.totalRings += Player.main.rings;
         }
+        StageLoader.main.lastCheckpoint = Vector3.zero;
         if (next) next.Start();
         else StageLoader.main.GoToMainMenu();
     }

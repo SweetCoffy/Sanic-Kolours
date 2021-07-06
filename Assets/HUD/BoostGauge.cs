@@ -6,14 +6,14 @@ using UnityEngine.UI;
 public class BoostGauge : HUDElement
 {
     public Image bar;
-    public Image extendedBar;
-    public Image otherBar;
     public Image background;
-    public Image extension;
     public Image container;
-    public bool isBoosting = false;
     float width;
     float containerWidth;
+    public Image extendedBar;
+    public Image otherBar;
+    public Image extension;
+    public bool isBoosting = false;
     public float testMaxBoost;
     public float testBoost;
     public Color testColor;
@@ -29,26 +29,40 @@ public class BoostGauge : HUDElement
     public float debugDist;
     public float otherBarOffset = 3.8583999999999605f;
     Color displayColor;
+    float oldBoost = 0;
+    public float shake = 0;
+    Vector2 originalPos;
     public float referenceMaxBoost = 250;
+    Vector3 originalScale;
+    public RectTransform scaledObject;
+    float tim = 0;
     // Start is called before the first frame update
     [ContextMenu("Start")]
     protected override void Start()
     {
         displayColor = testColor;
         originalColor = container.color;
+        originalScale = scaledObject.localScale;
         containerWidth = container.rectTransform.rect.width;
+        originalPos = container.rectTransform.anchoredPosition; 
     }
 
     // Update is called once per frame
     [ContextMenu("Update")]
     protected override void Update()
     {
+        if (scaledObject) {
+            scaledObject.localScale = Vector3.Lerp(originalScale, Vector3.zero, tim);
+            if (hud.player.UsingWisp && tim < 1) tim += Time.deltaTime * 5;
+            if ((!hud.player.UsingWisp || !hud.player.wispsEnabled) && tim > 0) tim -= Time.deltaTime * 5;
+        }
+        oldBoost = testBoost;
         if (hud && hud.player) {
             testBoost = hud.player.boost;
             testMaxBoost = hud.player.MaxBoost;
             testColor = hud.color;
             extension.enabled = testBoost > (hud.player.MaxBoost + extensionLengthAdd);
-            if (hud.player.isSuper && hud.player.rb.constraints != RigidbodyConstraints.FreezeAll) testBoost = ((hud.player.rings + hud.player.ringCooldown) / hud.player.superStartRings) * testMaxBoost;
+            //if (hud.player.isSuper && hud.player.rb.constraints != RigidbodyConstraints.FreezeAll) testBoost = ((hud.player.rings + hud.player.ringCooldown) / hud.player.superStartRings) * testMaxBoost;
             if ((testBoost / testMaxBoost) > lowThreshold * 0.01f) {
                 actualColor = testColor;
             } else {
@@ -98,5 +112,11 @@ public class BoostGauge : HUDElement
             t = 0;
             displayColor = Color.Lerp(displayColor, actualColor, 10 * Time.deltaTime);
         }
+        float dif = (testBoost - oldBoost);
+        if (dif < 0) {
+            Vector2 v = new Vector2(Random.Range(-shake, shake), Random.Range(-shake, shake));
+            Debug.Log(v);
+            container.rectTransform.anchoredPosition = originalPos + v;
+        } else container.rectTransform.anchoredPosition = originalPos; 
     }
 }

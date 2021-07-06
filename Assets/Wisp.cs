@@ -9,13 +9,15 @@ public class Wisp {
     private Vector2 originalHolderPos;
     public bool beingUsed = false;
     public Color barColor = Color.white;
+    public bool used = false;
     public float consumeRate = 1;
     public Color outlineColor = Color.white;
     public virtual void Start() {/**/
         //player.wispIcon.sprite = icon;
         timeLeft = duration;
-        player.barColor = barColor;
+        //player.barColor = barColor;
         beingUsed = true;
+        used = true;
         //originalPos = player.h.anchoredPosition;
         //originalHolderPos = player.iconHolder.anchoredPosition;
     }
@@ -39,6 +41,7 @@ public class Wisp {
     public virtual void WispPowerButtonDown() {}
     public virtual void WispPowerButton() {}
     public virtual void End() {
+        used = false;
         //player.wispIcon.sprite = player.placeholderIcon;;
         //player.outlineThing.color = new Color(1, 1, 1, 0);
         //player.h.anchoredPosition = originalPos;

@@ -11,6 +11,7 @@ public class SlideIn : MonoBehaviour {
     Vector3 startAt;
     public float speed = 1.5f;
     float t = 0;
+    bool done = false;
     void Start() {
         targetPos = target.anchoredPosition;
         startAt = target.anchoredPosition + startAtOffset;
@@ -18,12 +19,14 @@ public class SlideIn : MonoBehaviour {
         targetCanvasGroup.alpha = startAlpha;
     }
     void Update() {
+        if (done) return;
         if (delay > 0) {
             delay -= Time.deltaTime;
             return;
         }
         targetCanvasGroup.alpha = Mathf.Lerp(startAlpha, endAlpha, t);
         target.anchoredPosition = Vector3.Lerp(startAt, targetPos, t);
+        if (t >= 1) done = true;
         if (t < 1) t += Time.deltaTime * speed;
     }
 }

@@ -8,14 +8,13 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: water
-  m_Shader: {fileID: 46, guid: 0000000000000000f000000000000000, type: 0}
+  m_Shader: {fileID: 4800000, guid: eb7683ddcfe6bdf4dae3b1faf2c13c14, type: 3}
   m_ShaderKeywords: _ALPHAPREMULTIPLY_ON _NORMALMAP
   m_LightmapFlags: 4
   m_EnableInstancingVariants: 0
   m_DoubleSidedGI: 0
-  m_CustomRenderQueue: 3000
-  stringTagMap:
-    RenderType: Transparent
+  m_CustomRenderQueue: 3200
+  stringTagMap: {}
   disabledShaderPasses: []
   m_SavedProperties:
     serializedVersion: 3
@@ -57,6 +56,8 @@ Material:
         m_Scale: {x: 1, y: 1}
         m_Offset: {x: 0, y: 0}
     m_Floats:
+    - _AddX: 0
+    - _AddY: 0
     - _BumpScale: 1
     - _Cutoff: 0.5
     - _DetailNormalMapScale: 1
@@ -66,17 +67,27 @@ Material:
     - _GlossyReflections: 1
     - _HighlightThresholdMax: 12.2
     - _HightlightThresholdMax: 1
+    - _Intensity: 0.3
+    - _IntensityX: 1
+    - _IntensityY: 0
     - _Metallic: 0.442
     - _Mode: 3
+    - _Mul: 1
     - _OcclusionStrength: 1
     - _Parallax: 0.02
+    - _ScrollSpeedX: 0
+    - _ScrollSpeedY: 0
     - _SmoothnessTextureChannel: 0
     - _SpecularHighlights: 1
+    - _SpeedX: 8
+    - _SpeedY: 8
     - _SrcBlend: 1
+    - _TextureDistortionIntensity: 1
     - _UVSec: 0
     - _ZWrite: 0
     m_Colors:
-    - _Color: {r: 0, g: 0.43080854, b: 1, a: 0}
+    - _Color: {r: 1, g: 1, b: 1, a: 1}
+    - _ColorAdd: {r: 0, g: 0.11948014, b: 0.26415092, a: 0}
     - _EmissionColor: {r: 0, g: 0, b: 0, a: 1}
     - _HighlightColor: {r: 0.3254717, g: 0.43128005, b: 1, a: 1}
     - _HightlightColor: {r: 1, g: 1, b: 1, a: 1}

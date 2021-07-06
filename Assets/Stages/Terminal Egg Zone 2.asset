@@ -21,4 +21,4 @@ MonoBehaviour:
   unlockOnEnd:
   - super
   - x3boost
-  next: {fileID: 0}
+  next: {fileID: 11400000, guid: 6df6366dd3ddfa340985654dee375831, type: 2}
