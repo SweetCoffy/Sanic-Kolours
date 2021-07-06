@@ -1,2 +1,2 @@
 # Sanic Kolours
- A cheap recreation of sonic colors that barely resembles the game
+ This shouldn't even be called Sanic Kolours at this point but h
